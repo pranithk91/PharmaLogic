@@ -51,6 +51,7 @@ class ClientMainViewFrame(ttk.Frame):
             currentClientAge = self.clientAgeEntry.get()
             currentAmount = self.clientAmountEntry.get()
             currentPaymentMode = self.clientPayModeCbox.get()
+            currentProcName = self.clientProcNameEntry.get()
             
             if len(currentClientName)==0:
                 self.warningLabel.configure(text = "Warning: Invalid Name")
@@ -66,9 +67,13 @@ class ClientMainViewFrame(ttk.Frame):
                 insertIntoTable('Patients', values= f"'{client_id}','{strftime('%Y-%m-%d')}','{currentClientName}','{currentClientPhone}', '{currentClientAge}', '{currentClientGender}' ",
                     column_names= "UHId, Date, PName,PhoneNo,Age,Gender "
                 )
-
-                insertIntoTable('OutPatient', values=f"'{strftime('%Y-%m-%d')}','{client_id}','{currentPaymentMode}','{currentAmount}' ",
+                if currentOPProc == 'OP':
+                    insertIntoTable('OutPatient', values=f"'{strftime('%Y-%m-%d')}','{client_id}','{currentPaymentMode}','{currentAmount}' ",
                                 column_names= "OPDate,	UHId,	PaymentMode,	AmountPaid	"
+                                )
+                else:
+                    insertIntoTable('Procedures', values=f"'{strftime('%Y-%m-%d')}','{client_id}','{currentProcName}','{currentPaymentMode}','{currentAmount}' ",
+                                column_names= "ProcDate,	UHId, ProcedureName,	PaymentMode,	AmountPaid	"
                                 )
                 
                 self.clientUIDEntry.configure(state=NORMAL)
@@ -317,6 +322,15 @@ class ClientMainViewFrame(ttk.Frame):
                                          style = "TEntry.success", 
                                           width=15)
         self.clientAmountEntry.grid(row=1, column=3, sticky='w',padx = (0,30)) 
+
+        self.clientProcNameLabel  = ttk.Label(master=self.clientdetGrid,
+                                           text = "Procedure",font=("Calibri", 15, "bold"), 
+                                     style = "TLabel.success", justify="left" )
+        self.clientProcNameLabel.grid(row=0, column=4, sticky="w")
+        self.clientProcNameEntry = ttk.Entry(master=self.clientdetGrid, 
+                                         style = "TEntry.success", 
+                                          width=15)
+        self.clientProcNameEntry.grid(row=1, column=4, sticky='w',padx = (0,30)) 
         
         self.update()
         self.windowWidth = self.winfo_width()
