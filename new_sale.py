@@ -24,7 +24,7 @@ class MainViewFrame(ttk.Frame):
         super().__init__(master,  width=950, height=850, relief=tk.GROOVE)
         self.pack_propagate(0)
         self.grid(column=1, row=0, pady = (10,10), padx=(25,25))
-        today = date.today().strftime("%d-%b")
+        today = date.today().strftime("%Y-%m-%d")
        
         def clearBillTable():
             
@@ -363,7 +363,7 @@ class MainViewFrame(ttk.Frame):
             invDate = strftime("%Y-%m-%d")
             condition = f"InvoiceDate  = '{today}'"
             Invcount = selectTable('MedicineInvoices', column_names='count(*)', condition=condition )
-            Invcount = f"{Invcount[0][0]:02}"
+            Invcount = f"{Invcount[0][0]+1:02}"
             if self.discountEntry.get():
                 discountAmount = int(self.discountEntry.get())
             else:
@@ -382,9 +382,13 @@ class MainViewFrame(ttk.Frame):
             elif len (clientPhone) != 10:
                 self.warningLabel.configure(text = "Warning: Phone number needs 10 digits")
                 messagebox.showwarning("Warning", " Phone number needs 10 digits.")
+
+            elif len(payMode) == 0:
+                self.warningLabel.configure(text = "Warning: Select the payment mode for this bill")
+                messagebox.showwarning("Warning", "Select the payment mode for this bill.")
             else:
-                insertIntoTable('MedicineInvoices', f"('{invDate}','{InvoiceId}' , '{clientUId}','{billTotal}','{discountAmount}','{payMode}')", 
-                                column_names= "InvoiceDate,	InvoiceId,	UHId,	TotalAmount,	DiscountAmount,	PaymentMode" )
+                insertIntoTable('MedicineInvoices', f"('{invDate}','{InvoiceId}' , '{clientUId}','{billTotal}','{discountAmount}','{payMode}','{clientName}')", 
+                                column_names= "InvoiceDate,	InvoiceId,	UHId,	TotalAmount,	DiscountAmount,	PaymentMode, PName" )
                 #InvoiceDate	InvoiceId	UHId	TotalAmount	DiscountAmount	PaymentMode
             return InvoiceId    
 
@@ -404,23 +408,23 @@ class MainViewFrame(ttk.Frame):
                 
                 billData = []
                 billItems = len(self.billTable.get_children())
-                itemCount = 1
+                
                 BTotal = 0
                 for record in self.billTable.get_children():
                     
                     recValues = list(self.billTable.item(record,'values'))
                     
                     billData.append(recValues)
-                    saleId = currInvoiceNo+str(f"{itemCount:02}")
+                    saleId = currInvoiceNo+str(f"{len(billData):02}")
                     currentMedName = recValues[1]
                     currentMedId = str(medicineDf.loc[medicineDf["MName"] == currentMedName]["MId"].iloc[0])
                     MTotal = float(recValues[5])
                     BTotal = float(BTotal)+float(MTotal)
-                    insertIntoTable('MedicineInvoices', f"('{saleId}','{currentMedId}','{currInvoiceNo}' , '{recValues[4]}','{MTotal}','{BTotal}')", 
+                    insertIntoTable('Pharmacy', f"('{saleId}','{currentMedId}','{currInvoiceNo}' , '{recValues[4]}','{MTotal}','{BTotal}')", 
                                 column_names= "SaleId,	MId,	InvoiceId,	Mstock,	MTotal,	BTotal" )
                     
 
-                printBill(billData, currInvoiceNo)
+                printBill(currInvoiceNo)
 
                 for record in self.billTable.get_children():
                     self.billTable.delete(record)

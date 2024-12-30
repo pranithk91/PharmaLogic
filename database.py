@@ -51,7 +51,7 @@ def insertIntoTable(table_name, values, column_names ):
     print(query)
     try:
         cursor.execute(query)
-        #cursor.commit()
+        conn.commit()
 
         if 'connection' in locals() and conn.is_connected():
             cursor.close()
@@ -70,4 +70,4 @@ def getClientID(currentName):
 
 end_time = time.time()
 
-print(end_time-start_time)
+#print(end_time-start_time)

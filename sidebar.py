@@ -75,7 +75,6 @@ class MedicineApp(ttk.Frame):
         
         return ImageTk.PhotoImage(res_img)
 
-
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
