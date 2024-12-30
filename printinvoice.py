@@ -3,9 +3,7 @@ from reportlab.platypus import Image
 from datetime import date
 import sqlite3
 import pandas as pd
-#import pandas as pd
-#import gspread as gs
-from google.oauth2 import service_account
+
 import time
 import datetime
 from database import selectTable
@@ -134,7 +132,7 @@ from reportlab.lib.pagesizes import letter, A5
 #from temp_invoice import my_temp # import the template
 #from invoice_data import *  # get all data required for invoice
 def printBill(my_prod, bill_No):
-    my_path=r'C:\Users\KP\Development\IMS_2024\main_ttk\Invoices\{}.pdf'.format(bill_No) 
+    my_path=r'C:\Users\UltraSound\Desktop\Invoices\{}.pdf'.format(bill_No) 
     c = canvas.Canvas(my_path,pagesize=A5)
     
     c=my_temp(c) # run the template
@@ -154,13 +152,13 @@ def printBill(my_prod, bill_No):
     for rec in my_prod:
         print(rec)
         c.drawString((0.2+0.05)*inch,line_y*inch,str(i))
-        c.drawString((PcodeLine+0.05)*inch,line_y*inch,str(rec[5])) # product Code
-        c.drawString((ProductLine+0.05)*inch,line_y*inch,str(rec[3])) # p Name
+        c.drawString((PcodeLine+0.05)*inch,line_y*inch,str(rec[3])) # product Code
+        c.drawString((ProductLine+0.05)*inch,line_y*inch,str(rec[2])) # p Name
         c.drawString((RateLine +0.05)*inch,line_y*inch,str(rec[6])) # p Price
-        c.drawString((RateLine +0.05)*inch,line_y*inch,str(rec[6])) # p Price
+        
         c.drawString((QtyLine+0.05)*inch,line_y*inch,str(rec[4])) # p Qant 
-        sub_total=float(rec[6])*int(rec[4])
-        sub_total=float(rec[6])*int(rec[4])
+        sub_total=float(rec[5])*int(rec[4])
+       
         c.drawString((AmtLine+0.05)*inch,line_y*inch,str(sub_total)) # Sub Total 
         total=round(total+sub_total,1)
         line_y=line_y-row_gap

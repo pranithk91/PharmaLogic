@@ -64,15 +64,15 @@ class ClientMainViewFrame(ttk.Frame):
                 client_id = getClientID(currentClientName)
                 self.opTable.insert("",END, values=[client_id, strftime("%d-%m-%Y, %H:%M:%S"),  currentClientName, currentClientPhone, currentClientGender, currentClientAge, currentPaymentMode, currentAmount])
 
-                insertIntoTable('Patients', values= f"'{client_id}','{strftime('%Y-%m-%d')}','{currentClientName}','{currentClientPhone}', '{currentClientAge}', '{currentClientGender}' ",
+                insertIntoTable('Patients', values= f"('{client_id}','{strftime('%Y-%m-%d')}','{currentClientName}','{currentClientPhone}', {currentClientAge}, '{currentClientGender}') ",
                     column_names= "UHId, Date, PName,PhoneNo,Age,Gender "
                 )
                 if currentOPProc == 'OP':
-                    insertIntoTable('OutPatient', values=f"'{strftime('%Y-%m-%d')}','{client_id}','{currentPaymentMode}','{currentAmount}' ",
+                    insertIntoTable('OutPatient', values=f"('{strftime('%Y-%m-%d')}','{client_id}','{currentPaymentMode}',{currentAmount})",
                                 column_names= "OPDate,	UHId,	PaymentMode,	AmountPaid	"
                                 )
                 else:
-                    insertIntoTable('Procedures', values=f"'{strftime('%Y-%m-%d')}','{client_id}','{currentProcName}','{currentPaymentMode}','{currentAmount}' ",
+                    insertIntoTable('Procedures', values=f"('{strftime('%Y-%m-%d')}','{client_id}','{currentProcName}','{currentPaymentMode}',{currentAmount} )",
                                 column_names= "ProcDate,	UHId, ProcedureName,	PaymentMode,	AmountPaid	"
                                 )
                 

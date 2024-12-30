@@ -364,6 +364,10 @@ class MainViewFrame(ttk.Frame):
             condition = f"InvoiceDate  = '{today}'"
             Invcount = selectTable('MedicineInvoices', column_names='count(*)', condition=condition )
             Invcount = f"{Invcount[0][0]:02}"
+            if self.discountEntry.get():
+                discountAmount = int(self.discountEntry.get())
+            else:
+                discountAmount = 0
 
             InvoiceId = 'PM'+str(date.today().strftime("%y"))+str(date.today().timetuple().tm_yday)+str(Invcount)
 
@@ -379,7 +383,7 @@ class MainViewFrame(ttk.Frame):
                 self.warningLabel.configure(text = "Warning: Phone number needs 10 digits")
                 messagebox.showwarning("Warning", " Phone number needs 10 digits.")
             else:
-                insertIntoTable('MedicineInvoices', f"'{invDate}','{InvoiceId}' , '{clientUId}','{billTotal}','{discountAmount}','{payMode}'", 
+                insertIntoTable('MedicineInvoices', f"('{invDate}','{InvoiceId}' , '{clientUId}','{billTotal}','{discountAmount}','{payMode}')", 
                                 column_names= "InvoiceDate,	InvoiceId,	UHId,	TotalAmount,	DiscountAmount,	PaymentMode" )
                 #InvoiceDate	InvoiceId	UHId	TotalAmount	DiscountAmount	PaymentMode
             return InvoiceId    
@@ -410,9 +414,9 @@ class MainViewFrame(ttk.Frame):
                     saleId = currInvoiceNo+str(f"{itemCount:02}")
                     currentMedName = recValues[1]
                     currentMedId = str(medicineDf.loc[medicineDf["MName"] == currentMedName]["MId"].iloc[0])
-                    MTotal = recValues[5]
-                    BTotal = BTotal+MTotal
-                    insertIntoTable('MedicineInvoices', f"'{saleId}','{currentMedId}','{currInvoiceNo}' , '{recValues[4]}','{MTotal}','{BTotal}'", 
+                    MTotal = float(recValues[5])
+                    BTotal = float(BTotal)+float(MTotal)
+                    insertIntoTable('MedicineInvoices', f"('{saleId}','{currentMedId}','{currInvoiceNo}' , '{recValues[4]}','{MTotal}','{BTotal}')", 
                                 column_names= "SaleId,	MId,	InvoiceId,	Mstock,	MTotal,	BTotal" )
                     
 

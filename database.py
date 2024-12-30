@@ -48,10 +48,10 @@ def selectTable(table_name, column_names = '*', condition= "1=1", Limit=None):
 def insertIntoTable(table_name, values, column_names ):
     cursor, conn = db_cursor()
     query = "INSERT INTO " + table_name + " (" + column_names + ")" + " VALUES " + values 
-    #print(query)
+    print(query)
     try:
         cursor.execute(query)
-        cursor.commit()
+        #cursor.commit()
 
         if 'connection' in locals() and conn.is_connected():
             cursor.close()
