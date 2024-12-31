@@ -4,7 +4,7 @@ from tkinter import ttk
 from tkinter import *
 from PIL import Image, ImageTk
 #from database import loadDatabase, getClientid
-
+from Pharmacy_view import pharmacyViewFrame
 from new_client import ClientMainViewFrame
 from new_sale import MainViewFrame
 
@@ -32,13 +32,19 @@ class MedicineApp(ttk.Frame):
         # Buttons
         self.opButton = self.create_button("OP Register", "Images/plus_icon.png", command=self.client_frame)
         self.opButton.pack(anchor="center", ipady=5, pady=(16, 0),padx=(25,25) )
-        #self.ordersButton = self.create_button("Orders", "package_icon.png")
+         
         self.ordersListButton = self.create_button("Pharmacy", "Images/list_icon.png", command=self.main_frame)
         self.ordersListButton.pack(anchor="center", ipady=5, pady=(16, 0),padx=(25,25) )
+
+        self.viewSalesButton = self.create_button("View Sales", "Images/settings_icon.png", command=self.viewSale_frame) 
+        self.viewSalesButton.pack(anchor="center", ipady=5, pady=(16, 0) ,padx=(25,25))
+
         self.returnsButton = self.create_button("Returns", "Images/returns_icon.png")
         self.returnsButton.pack(anchor="center", ipady=5, pady=(16, 0),padx=(25,25) )
+        
         self.settingsButton = self.create_button("Settings", "Images/settings_icon.png") 
         self.settingsButton.pack(anchor="center", ipady=5, pady=(16, 0) ,padx=(25,25))
+
         self.accountButton = self.create_button("Account", "Images/person_icon.png")
         self.accountButton.pack(anchor="center", ipady=5, pady=(160, 80),padx=(25,25) )
 
@@ -55,6 +61,10 @@ class MedicineApp(ttk.Frame):
     def client_frame(self):
 
         self.main_view = ClientMainViewFrame(self.master)
+        self.main_view.tkraise()
+
+    def viewSale_frame(self):
+        self.main_view = pharmacyViewFrame(self.master)
         self.main_view.tkraise()
 
 
