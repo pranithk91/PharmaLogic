@@ -73,6 +73,7 @@ class pharmacyViewFrame(ttk.Frame):
             #client_id, strftime("%d-%m-%Y, %H:%M:%S"),  currentClientName, currentClientPhone, currentClientGender, currentClientAge, currentOPProc, currentPaymentMode, currentAmount
 
             for x in rowsWithDate:
+                #print(rowsWithDate)
                 self.billTable.insert("", END, values=list(x))
             self.dateFetchEntry.entry.delete(0, tk.END)
             self.dateFetchEntry.entry.insert(0, strftime("%d-%m-%Y"))
@@ -97,7 +98,7 @@ class pharmacyViewFrame(ttk.Frame):
         self.billTableFrame.pack(expand=True, fill="both", padx=27, pady=21)
 
         self.billTable = ttk.Treeview(master=self.billTableFrame, 
-                                  columns=["Time Stamp",  "Patient Name", "Med Name", "MRP", "Quantity", "Total Price", "Bill Amount"],
+                                  columns=["Time Stamp",  "Patient Name", "Med Name", "MRP", "Quantity", "Med Total","PaymentMode", "Bill Amount"],
                                   show="headings",
                                     #yscrollcommand=self.treeSrollBar,
                                     selectmode="extended",
@@ -110,7 +111,8 @@ class pharmacyViewFrame(ttk.Frame):
         self.billTable.column("Patient Name", width=75)
         self.billTable.column("MRP", width=75)
         self.billTable.column("Quantity", width=75)
-        self.billTable.column("Total Price",width=75)
+        self.billTable.column("Med Total",width=75)
+        self.billTable.column("PaymentMode",width=75)
         self.billTable.column("Bill Amount",width=75)
 
 
@@ -119,7 +121,8 @@ class pharmacyViewFrame(ttk.Frame):
         self.billTable.heading("Patient Name", text="Patient Name", anchor=W)
         self.billTable.heading("MRP", text="MRP", anchor=W)
         self.billTable.heading("Quantity", text="Quantity", anchor=W)
-        self.billTable.heading("Total Price", text="Total Price", anchor=W)
+        self.billTable.heading("Med Total", text="Med Total", anchor=W)
+        self.billTable.heading("PaymentMode", text="PaymentMode", anchor=W)
         self.billTable.heading("Bill Amount", text="Bill Amount", anchor=W)
    
         self.billTable.pack(expand=True, fill='both', pady=(10,0))
