@@ -1,19 +1,14 @@
 from customtkinter import *
 import tkinter as tk
-from tkinter import ttk, messagebox
-from tkinter import *
-from PIL import Image, ImageTk
+from tkinter import ttk
 from database import selectTable, getClientID, insertIntoTable
-#from CTkScrollableDropdown import *
 import pandas as pd
-#from CTkTable import CTkTable
 from time import strftime
-import sqlite3
-#from tkcalendar import DateEntry
-import ttkbootstrap as tkb
-#from treeactions import *
 from datetime import datetime
-#from gspreaddb import getOPData,getClientid, opWS
+import ttkbootstrap as tkb
+from ttkbootstrap.tableview import Tableview
+from ttkbootstrap.constants import *
+
 
 
 
@@ -59,22 +54,25 @@ class pharmacyViewFrame(ttk.Frame):
         self.uidFetchEntry.bind("<Button-1>",uidEntryBind)
         #self.clientAmountEntry.grid(row=1, column=3, sticky='w',padx = (0,30))         
         def removeAll():
-            for record in self.billTable.get_children():
-                self.billTable.delete(record) 
+            for i,record in enumerate(self.billTable.get_rows()):
+                self.billTable.delete_row(i) 
         def fetchDetails():
+            removeAll()
             selected_date = self.dateFetchEntry.entry.get()
             
             selected_date = datetime.strptime(selected_date, "%d-%m-%Y").strftime("%Y-%m-%d")
             
             rowsWithDate = selectTable('vw_dailyPharmacyDetails', condition=f"InvoiceDate = '{selected_date}'")
             
-            removeAll()
+            
             
             #client_id, strftime("%d-%m-%Y, %H:%M:%S"),  currentClientName, currentClientPhone, currentClientGender, currentClientAge, currentOPProc, currentPaymentMode, currentAmount
 
-            for x in rowsWithDate:
+            for i,x in enumerate(rowsWithDate):
                 #print(rowsWithDate)
-                self.billTable.insert("", END, values=list(x))
+                row_color = "white" if i % 2 == 0 else "#f0f0f0"
+                self.billTable.insert_row(index= END, values=list(x))#,tags={"style": {"background": row_color}})
+            self.billTable.load_table_data()
             self.dateFetchEntry.entry.delete(0, tk.END)
             self.dateFetchEntry.entry.insert(0, strftime("%d-%m-%Y"))
 
@@ -90,7 +88,7 @@ class pharmacyViewFrame(ttk.Frame):
         self.searchByCbox.grid(row=0, column=2,sticky="w", pady=20, padx = (0,30))
 
         self.fetchDetailsButton = ttk.Button(master=self.fetchDetGrid, text="Fetch Details",
-                                       style = "TButton.success",
+                                       #style = "TButton.success",
                                       command=fetchDetails)
         self.fetchDetailsButton.grid(row=0, column=3,sticky="w" ,pady=(0,0),padx = (0,30))
 
@@ -98,42 +96,47 @@ class pharmacyViewFrame(ttk.Frame):
         self.billTableFrame.pack(expand=True, fill="both", padx=27, pady=21)
 
         style = ttk.Style()
-        style.configure("Custom.Treeview", font=("Helvetica", 18))  # Set font size to 14
-        style.configure("Custom.Treeview.Heading", font=("Helvetica", 16, "bold"))
+        #style.theme_use("default")  # Ensure the theme supports custom styles
+        style.configure("Custom.Treeview", font=("Helvetica", 13), rowheight=25,borderwidth=1) 
+                          # Set row font size and height
+        style.configure("Custom.Treeview.Heading", font=("Helvetica", 13, "bold"), borderwidth=1)  # Set heading font size
+        style.map("Custom.Treeview", background=[("alternate", "#E8E8E8")])  # Striped rows
 
-        self.billTable = tkb.Treeview(master=self.billTableFrame, 
-                                  columns=["Time Stamp",  "Patient Name", "Med Name", "MRP", "Quantity", "Med Total","PaymentMode", "Bill Amount"],
-                                  show="headings",
-                                    #yscrollcommand=self.treeScrollBar,
-                                    selectmode="extended",
-                                  style="Custom.Treeview")
-        #self.billTable.edit_row(0, text_color="#fff", hover_color="#2A8C55")
-        #self.billTable.pack(expand=True)
-        for col in ["Time Stamp", "Patient Name", "Med Name", "MRP", "Quantity", "Med Total", "PaymentMode", "Bill Amount"]:
-            self.billTable.heading(col, text=col, anchor=W)
-            self.billTable.column(col, anchor="center", width=100)
-
-        #self.billTable.column("Time Stamp", width=75)
-        #self.billTable.column("Med Name", width=75)
-        #self.billTable.column("Patient Name", width=75)
-        #self.billTable.column("MRP", width=75)
-        #self.billTable.column("Quantity", width=75)
-        #self.billTable.column("Med Total",width=75)
-        #self.billTable.column("PaymentMode",width=75)
-        #self.billTable.column("Bill Amount",width=75)
-
-
-        #self.billTable.heading("Time Stamp", text="Time Stamp", anchor=W)
-        #self.billTable.heading("Med Name", text="Med Name", anchor=W)
-        #self.billTable.heading("Patient Name", text="Patient Name", anchor=W)
-        #self.billTable.heading("MRP", text="MRP", anchor=W)
-        #self.billTable.heading("Quantity", text="Quantity", anchor=W)
-        #self.billTable.heading("Med Total", text="Med Total", anchor=W)
-        #self.billTable.heading("PaymentMode", text="PaymentMode", anchor=W)
-        #self.billTable.heading("Bill Amount", text="Bill Amount", anchor=W)
         
-        #self.billTable.apply_table_stripes(self, "green")
-        self.billTable.pack(expand=True, fill='both', pady=(10,0))
+
+        
+        coldata= [{"text":"Time Stamp","stretch": TRUE} ,
+                  {"text":"Patient Name","stretch": TRUE} ,
+                  {"text":"Med Name","stretch": TRUE},
+                  {"text": "MRP","stretch": TRUE},
+                  {"text": "Quantity","stretch": FALSE} ,
+                  {"text":"Med Total","stretch": TRUE},
+                  {"text": "PaymentMode","stretch": TRUE} ,
+                  {"text":"Bill Amount","stretch": TRUE}]
+        # Create the Treeview
+        self.billTable = Tableview(
+            master=self.billTableFrame,
+            coldata=coldata,
+            pagesize = 200,
+            autofit = True,
+            #selectmode="extended",
+            paginated=True,
+            #rowcolors=("white", "#f0f0f0"),
+            #style="Custom.Treeview",  # Apply the custom style
+
+            bootstyle = SUCCESS,
+            stripecolor=('lightsteelblue', 'black')
+
+        )
+        self.billTable.configure(style="Custom.Treeview")
+
+        # Configure headings and columns
+        #for col in ["Time Stamp", "Patient Name", "Med Name", "MRP", "Quantity", "Med Total", "PaymentMode", "Bill Amount"]:
+        #    self.billTable.heading(col, text=col, anchor=tk.W)
+        #    self.billTable.column(col, width=150, anchor=tk.W)  # Adjust width for better readability
+
+        # Pack the Treeview
+        self.billTable.pack(expand=True, fill="both", pady=(10, 0))
 
         self.billTotalLabel = ttk.Label(master=self.billTableFrame, text="Bill Total: 0",
                                        font=("Calibri", 15, "bold"), 
