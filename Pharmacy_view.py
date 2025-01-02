@@ -94,37 +94,45 @@ class pharmacyViewFrame(ttk.Frame):
                                       command=fetchDetails)
         self.fetchDetailsButton.grid(row=0, column=3,sticky="w" ,pady=(0,0),padx = (0,30))
 
-        self.billTableFrame = ttk.Frame(master=self, bootstyle="default")
+        self.billTableFrame = ttk.Frame(master=self)
         self.billTableFrame.pack(expand=True, fill="both", padx=27, pady=21)
 
-        self.billTable = ttk.Treeview(master=self.billTableFrame, 
+        style = ttk.Style()
+        style.configure("Custom.Treeview", font=("Helvetica", 18))  # Set font size to 14
+        style.configure("Custom.Treeview.Heading", font=("Helvetica", 16, "bold"))
+
+        self.billTable = tkb.Treeview(master=self.billTableFrame, 
                                   columns=["Time Stamp",  "Patient Name", "Med Name", "MRP", "Quantity", "Med Total","PaymentMode", "Bill Amount"],
                                   show="headings",
-                                    #yscrollcommand=self.treeSrollBar,
+                                    #yscrollcommand=self.treeScrollBar,
                                     selectmode="extended",
-                                  style="success.Treeview")
+                                  style="Custom.Treeview")
         #self.billTable.edit_row(0, text_color="#fff", hover_color="#2A8C55")
         #self.billTable.pack(expand=True)
+        for col in ["Time Stamp", "Patient Name", "Med Name", "MRP", "Quantity", "Med Total", "PaymentMode", "Bill Amount"]:
+            self.billTable.heading(col, text=col, anchor=W)
+            self.billTable.column(col, anchor="center", width=100)
 
-        self.billTable.column("Time Stamp", width=75)
-        self.billTable.column("Med Name", width=75)
-        self.billTable.column("Patient Name", width=75)
-        self.billTable.column("MRP", width=75)
-        self.billTable.column("Quantity", width=75)
-        self.billTable.column("Med Total",width=75)
-        self.billTable.column("PaymentMode",width=75)
-        self.billTable.column("Bill Amount",width=75)
+        #self.billTable.column("Time Stamp", width=75)
+        #self.billTable.column("Med Name", width=75)
+        #self.billTable.column("Patient Name", width=75)
+        #self.billTable.column("MRP", width=75)
+        #self.billTable.column("Quantity", width=75)
+        #self.billTable.column("Med Total",width=75)
+        #self.billTable.column("PaymentMode",width=75)
+        #self.billTable.column("Bill Amount",width=75)
 
 
-        self.billTable.heading("Time Stamp", text="Time Stamp", anchor=W)
-        self.billTable.heading("Med Name", text="Med Name", anchor=W)
-        self.billTable.heading("Patient Name", text="Patient Name", anchor=W)
-        self.billTable.heading("MRP", text="MRP", anchor=W)
-        self.billTable.heading("Quantity", text="Quantity", anchor=W)
-        self.billTable.heading("Med Total", text="Med Total", anchor=W)
-        self.billTable.heading("PaymentMode", text="PaymentMode", anchor=W)
-        self.billTable.heading("Bill Amount", text="Bill Amount", anchor=W)
-   
+        #self.billTable.heading("Time Stamp", text="Time Stamp", anchor=W)
+        #self.billTable.heading("Med Name", text="Med Name", anchor=W)
+        #self.billTable.heading("Patient Name", text="Patient Name", anchor=W)
+        #self.billTable.heading("MRP", text="MRP", anchor=W)
+        #self.billTable.heading("Quantity", text="Quantity", anchor=W)
+        #self.billTable.heading("Med Total", text="Med Total", anchor=W)
+        #self.billTable.heading("PaymentMode", text="PaymentMode", anchor=W)
+        #self.billTable.heading("Bill Amount", text="Bill Amount", anchor=W)
+        
+        #self.billTable.apply_table_stripes(self, "green")
         self.billTable.pack(expand=True, fill='both', pady=(10,0))
 
         self.billTotalLabel = ttk.Label(master=self.billTableFrame, text="Bill Total: 0",

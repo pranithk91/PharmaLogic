@@ -369,7 +369,7 @@ class MainViewFrame(ttk.Frame):
             else:
                 discountAmount = 0
 
-            InvoiceId = 'PM'+str(date.today().strftime("%y"))+str(date.today().timetuple().tm_yday)+str(Invcount)
+            InvoiceId = 'PM'+str(date.today().strftime("%y"))+str(f"{date.today().timetuple().tm_yday:03}")+str(Invcount)
 
             if self.warningLabel.cget("text") == "Warning: Invalid Name" or self.warningLabel.cget("text") == "Warning: Phone number needs 10 digits":
                 self.warningLabel.configure(text = "")
