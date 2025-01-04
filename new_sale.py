@@ -362,11 +362,12 @@ class MainViewFrame(ttk.Frame):
             payMode = self.payModeCombobox.get()
             clientUId = self.clientUIDEntry.get()
             invDate = strftime("%Y-%m-%d %H:%M")
-            condition = f"InvoiceDate  = '{today}'"
+            condition = f"Date_format(InvoiceDate, '%Y-%m-%d')  = '{today}'"
             Invcount = selectTable('MedicineInvoices', column_names='count(*)', condition=condition )
             Invcount = f"{Invcount[0][0]+1:02}"
             if self.discountEntry.get():
                 discountAmount = int(self.discountEntry.get())
+                #billTotal = billTotal-discountAmount
             else:
                 discountAmount = 0
 
