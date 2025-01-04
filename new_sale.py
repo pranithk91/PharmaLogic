@@ -155,7 +155,7 @@ class MainViewFrame(ttk.Frame):
             #global currentMedId
 
             currentMedName = self.itemNameEntry.get()
-            #print(medicineDf.loc[medicineDf["Name"] == currentMedName])
+            #print(medicineDf.loc[medicineDf["MName"] == currentMedName])
             currentMedQty = int(medicineDf.loc[medicineDf["MName"] == currentMedName]["CurrentStock"].iloc[0])
             currentMedPrice = float(medicineDf.loc[medicineDf["MName"] == currentMedName]["MRP"].iloc[0])
             currentMedType = str(medicineDf.loc[medicineDf["MName"] == currentMedName]["MType"].iloc[0])
@@ -241,13 +241,14 @@ class MainViewFrame(ttk.Frame):
                                              cursor='hand2')
         self.payModeCombobox.grid(row=1, column=3, sticky='w', padx = (30,20))
         
-        def activateBothEntries(event):
+        """def activateBothEntries(event):
             if self.payModeCombobox.get() == 'Both':
-                self.cashAmtEntry.configure(state=NORMAL)
-                self.cashAmtEntry.insert(0,"Cash")
+                self.commentEntry.configure(state=NORMAL)
+                
+                self.commentEntry.insert(0,"Cash")
                 self.upiAmtEntry.configure(state=NORMAL)
                 self.upiAmtEntry.insert(0,"UPI")
-        self.payModeCombobox.bind('<<ComboboxSelected>>', activateBothEntries )
+        self.payModeCombobox.bind('<<ComboboxSelected>>', activateBothEntries )"""
 
         quantity_frame = ttk.Frame(master=self.searchGrid, bootstyle="default")
         quantity_frame.grid(row=1, column=1, padx=(10,0), pady=(0,0), sticky="w")
@@ -356,11 +357,11 @@ class MainViewFrame(ttk.Frame):
             #insLastRowNo = len(inoviceWS.col_values(insDateColNo))+1
             clientName = self.clientNameEntry.get()
             clientPhone = self.clientPhoneEntry.get()
-            cashAmount = self.cashAmtEntry.get()
-            upiAmount = self.upiAmtEntry.get()
+            comment = self.commentEntry.get()
+            
             payMode = self.payModeCombobox.get()
             clientUId = self.clientUIDEntry.get()
-            invDate = strftime("%Y-%m-%d")
+            invDate = strftime("%Y-%m-%d %H:%M")
             condition = f"InvoiceDate  = '{today}'"
             Invcount = selectTable('MedicineInvoices', column_names='count(*)', condition=condition )
             Invcount = f"{Invcount[0][0]+1:02}"
@@ -387,8 +388,8 @@ class MainViewFrame(ttk.Frame):
                 self.warningLabel.configure(text = "Warning: Select the payment mode for this bill")
                 messagebox.showwarning("Warning", "Select the payment mode for this bill.")
             else:
-                insertIntoTable('MedicineInvoices', f"('{invDate}','{InvoiceId}' , '{clientUId}','{billTotal}','{discountAmount}','{payMode}','{clientName}')", 
-                                column_names= "InvoiceDate,	InvoiceId,	UHId,	TotalAmount,	DiscountAmount,	PaymentMode, PName" )
+                insertIntoTable('MedicineInvoices', f"('{invDate}','{InvoiceId}' , '{clientUId}','{billTotal}','{discountAmount}','{payMode}','{clientName}', '{comment}')", 
+                                column_names= "InvoiceDate,	InvoiceId,	UHId,	TotalAmount,	DiscountAmount,	PaymentMode, PName, Comments" )
                 #InvoiceDate	InvoiceId	UHId	TotalAmount	DiscountAmount	PaymentMode
             return InvoiceId    
 
@@ -434,12 +435,7 @@ class MainViewFrame(ttk.Frame):
                 self.clientPhoneEntry.delete(0,END)
                 self.clientGenderCbox.set("")   
                 self.payModeCombobox.set("")
-                self.cashAmtEntry.configure(state=NORMAL)
-                self.cashAmtEntry.delete(0,END)
-                self.cashAmtEntry.configure(state=DISABLED)
-                self.upiAmtEntry.configure(state=NORMAL)
-                self.upiAmtEntry.delete(0,END)
-                self.upiAmtEntry.configure(state=DISABLED)
+                self.commentEntry.delete(0,END)
                 self.discountEntry.delete(0,END)
 
                   
@@ -490,8 +486,8 @@ class MainViewFrame(ttk.Frame):
         self.discountEntry = ttk.Entry(master=self.billTableFrame, text="Discount",
                                        textvariable=discountAmount,
                                        font=("Calibri", 12, "bold"),
-                                       width=15,style="success.TEntry")
-        self.discountEntry.pack(anchor="ne", side="left",padx=(20,0), pady=(20,0))
+                                       width=8,style="success.TEntry")
+        self.discountEntry.pack(anchor="ne", side="left",padx=(15,0), pady=(20,0))
 
         
         def applyDiscount():
@@ -502,27 +498,24 @@ class MainViewFrame(ttk.Frame):
                                 style="success.TButton",
                                 command=applyDiscount)
         
-        self.applyDiscountButton.pack(anchor="ne", side="left",padx=(20,0), pady=(20,0))
+        self.applyDiscountButton.pack(anchor="ne", side="left",padx=(15,0), pady=(20,0))
 
         def focusEntry(event):
            fw = master.focus_get()
            fw.delete(0,END)
 
         
-
-        self.cashAmtEntry = ttk.Entry(master=self.billTableFrame, text="Discount",
-                                       
+        self.commentLabel = ttk.Label(master=self.billTableFrame, text="Comments",
+                                      font=("Calibri", 15, "bold"), 
+                                        style="success.TLabel")
+        self.commentLabel.pack(anchor="ne", side="left",padx=(15,0),pady=(20,0))
+        self.commentEntry = ttk.Entry(master=self.billTableFrame,                                        
                                        font=("Calibri", 12, "bold"),
-                                       width=15,style="success.TEntry",state=DISABLED)
-        self.cashAmtEntry.pack(anchor="ne", side="left",padx=(20,0), pady=(20,0))
+                                       width=30,style="success.TEntry")
+        self.commentEntry.pack(anchor="ne", side="left",padx=(10,0), pady=(20,0))
         
-        self.cashAmtEntry.bind("<Button-1>", focusEntry)
-        self.upiAmtEntry = ttk.Entry(master=self.billTableFrame, text="Discount",
-                                       
-                                       font=("Calibri", 12, "bold"),
-                                       width=15,style="success.TEntry",state=DISABLED)
-        self.upiAmtEntry.pack(anchor="ne", side="left",padx=(20,0), pady=(20,0))
-        self.upiAmtEntry.bind("<Button-1>", focusEntry)
+        #self.commentEntry.bind("<Button-1>", focusEntry)
+        
 
 
 

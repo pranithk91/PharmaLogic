@@ -62,7 +62,7 @@ class pharmacyViewFrame(ttk.Frame):
             
             selected_date = datetime.strptime(selected_date, "%d-%m-%Y").strftime("%Y-%m-%d")
             
-            rowsWithDate = selectTable('vw_dailyPharmacyDetails', condition=f"InvoiceDate = '{selected_date}'")
+            rowsWithDate = selectTable('vw_dailyPharmacyDetails', condition=f"Date(InvoiceDate) = '{selected_date}'")
             
             
             
@@ -108,11 +108,14 @@ class pharmacyViewFrame(ttk.Frame):
         coldata= [{"text":"Time Stamp","stretch": TRUE} ,
                   {"text":"Patient Name","stretch": TRUE} ,
                   {"text":"Med Name","stretch": TRUE},
-                  {"text": "MRP","stretch": TRUE},
-                  {"text": "Quantity","stretch": FALSE} ,
+                  {"text":"MRP","stretch": TRUE},
+                  {"text":"Quantity","stretch": FALSE} ,
                   {"text":"Med Total","stretch": TRUE},
-                  {"text": "PaymentMode","stretch": TRUE} ,
-                  {"text":"Bill Amount","stretch": TRUE}]
+                  {"text":"PayMode","stretch": TRUE} ,
+                  {"text":"Bill Total","stretch": TRUE},
+                  {"text":"Discount","stretch": TRUE},
+                  {"text":"Comments","stretch": TRUE}]
+        
         # Create the Treeview
         self.billTable = Tableview(
             master=self.billTableFrame,
