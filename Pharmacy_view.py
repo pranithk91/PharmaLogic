@@ -65,9 +65,7 @@ class pharmacyViewFrame(ttk.Frame):
             rowsWithDate = selectTable('vw_dailyPharmacyDetails', condition=f"Date(InvoiceDate) = '{selected_date}'")
             self.billTable.build_table_data(coldata,rowsWithDate)
             
-            cashTotal = selectTable('vw_cashUPI_split', column_names='Totals', condition=f"Date_format(InvoiceDate, '%Y-%m-%d') = '{selected_date}' and PaymentMode = 'Cash'")
-            upiTotal = selectTable('vw_cashUPI_split', column_names='Totals',condition=f"Date_format(InvoiceDate, '%Y-%m-%d') = '{selected_date}' and PaymentMode = 'UPI'")
-            bothTotal = selectTable('vw_cashUPI_split',column_names='Totals', condition=f"Date_format(InvoiceDate, '%Y-%m-%d') = '{selected_date}' and PaymentMode = 'Both'")
+            Totals = selectTable('vw_cashUPI_split', column_names='PaymentMode, Totals', condition=f"Date_format(InvoiceDate, '%Y-%m-%d') = '{selected_date}' order by 1")
 
 
 
@@ -78,7 +76,7 @@ class pharmacyViewFrame(ttk.Frame):
                 row_color = "white" if i % 2 == 0 else "#f0f0f0"
                 self.billTable.insert_row(index= END, values=list(x))#,tags={"style": {"background": row_color}})"""
             self.billTable.load_table_data()
-            self.billTotalLabel.configure(text=f"Cash Total : {cashTotal[0][0]}   UPI Total : {upiTotal[0][0]}  Both Total : {bothTotal[0][0]}")
+            self.billTotalLabel.configure(text=f"Cash : {Totals[1][1]}   UPI: {Totals[2][1]}  Both: {Totals[0][1]}, Total: {Totals[1][1]+Totals[2][1]+Totals[0][1]}")
             self.dateFetchEntry.entry.delete(0, tk.END)
             self.dateFetchEntry.entry.insert(0, strftime("%d-%m-%Y"))
         style = ttk.Style()
