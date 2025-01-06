@@ -65,7 +65,12 @@ class pharmacyViewFrame(ttk.Frame):
             rowsWithDate = selectTable('vw_dailyPharmacyDetails', condition=f"Date(InvoiceDate) = '{selected_date}'")
             self.billTable.build_table_data(coldata,rowsWithDate)
             
-            
+            cashTotal = selectTable('vw_cashUPI_split', column_names='Totals', condition=f"Date_format(InvoiceDate, '%Y-%m-%d') = '{selected_date}' and PaymentMode = 'Cash'")
+            upiTotal = selectTable('vw_cashUPI_split', column_names='Totals',condition=f"Date_format(InvoiceDate, '%Y-%m-%d') = '{selected_date}' and PaymentMode = 'UPI'")
+            bothTotal = selectTable('vw_cashUPI_split',column_names='Totals', condition=f"Date_format(InvoiceDate, '%Y-%m-%d') = '{selected_date}' and PaymentMode = 'Both'")
+
+
+
             #client_id, strftime("%d-%m-%Y, %H:%M:%S"),  currentClientName, currentClientPhone, currentClientGender, currentClientAge, currentOPProc, currentPaymentMode, currentAmount
 
             """for i,x in enumerate(rowsWithDate):
@@ -73,6 +78,7 @@ class pharmacyViewFrame(ttk.Frame):
                 row_color = "white" if i % 2 == 0 else "#f0f0f0"
                 self.billTable.insert_row(index= END, values=list(x))#,tags={"style": {"background": row_color}})"""
             self.billTable.load_table_data()
+            self.billTotalLabel.configure(text=f"Cash Total : {cashTotal[0][0]}   UPI Total : {upiTotal[0][0]}  Both Total : {bothTotal[0][0]}")
             self.dateFetchEntry.entry.delete(0, tk.END)
             self.dateFetchEntry.entry.insert(0, strftime("%d-%m-%Y"))
         style = ttk.Style()
@@ -165,11 +171,13 @@ class pharmacyViewFrame(ttk.Frame):
         #for col_name, width in column_widths.items():
         #self.billTable.Ta(width=200, stretch=FALSE)
         #set_column_widths()
-        self.billTotalLabel = ttk.Label(master=self.billTableFrame, text="Bill Total: 0",
+        selected_date = '2025-01-06'
+        
+        self.billTotalLabel = ttk.Label(master=self.billTableFrame, text="Totals: 0",
                                        font=("Calibri", 15, "bold"), 
                                         style="successTLabel."
                                         )
-        self.billTotalLabel.pack(anchor="ne", side="right",pady=(20,0))
+        self.billTotalLabel.pack(anchor="c", side="right",pady=(20,0))
 
         fetchDetails()
         
