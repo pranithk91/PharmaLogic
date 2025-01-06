@@ -14,7 +14,7 @@ from ttkbootstrap.constants import *
 
 class pharmacyViewFrame(ttk.Frame):
     def __init__(self, master=NONE):
-        super().__init__(master, width=950, height=850, relief = tk.GROOVE)
+        super().__init__(master, width=1050, height=850, relief = tk.GROOVE)
         self.pack_propagate(0)
         self.grid(column=1, row=0, padx=(30,30), pady=(10,10))
 
@@ -63,19 +63,23 @@ class pharmacyViewFrame(ttk.Frame):
             selected_date = datetime.strptime(selected_date, "%d-%m-%Y").strftime("%Y-%m-%d")
             
             rowsWithDate = selectTable('vw_dailyPharmacyDetails', condition=f"Date(InvoiceDate) = '{selected_date}'")
-            
+            self.billTable.build_table_data(coldata,rowsWithDate)
             
             
             #client_id, strftime("%d-%m-%Y, %H:%M:%S"),  currentClientName, currentClientPhone, currentClientGender, currentClientAge, currentOPProc, currentPaymentMode, currentAmount
 
-            for i,x in enumerate(rowsWithDate):
+            """for i,x in enumerate(rowsWithDate):
                 #print(rowsWithDate)
                 row_color = "white" if i % 2 == 0 else "#f0f0f0"
-                self.billTable.insert_row(index= END, values=list(x))#,tags={"style": {"background": row_color}})
+                self.billTable.insert_row(index= END, values=list(x))#,tags={"style": {"background": row_color}})"""
             self.billTable.load_table_data()
             self.dateFetchEntry.entry.delete(0, tk.END)
             self.dateFetchEntry.entry.insert(0, strftime("%d-%m-%Y"))
-
+        style = ttk.Style()
+        style.configure(
+            "success.TButton",
+            font=("Helvetica", 14),  # Set a larger font size
+        )
         dateFetchEntry = StringVar()
         self.dateFetchEntry = tkb.DateEntry(self.fetchDetGrid, bootstyle="success")
         self.dateFetchEntry.grid(row=0,column=1,padx=(80,30))
@@ -88,7 +92,7 @@ class pharmacyViewFrame(ttk.Frame):
         self.searchByCbox.grid(row=0, column=2,sticky="w", pady=20, padx = (0,30))
 
         self.fetchDetailsButton = ttk.Button(master=self.fetchDetGrid, text="Fetch Details",
-                                       #style = "TButton.success",
+                                       style = "TButton.success",
                                       command=fetchDetails)
         self.fetchDetailsButton.grid(row=0, column=3,sticky="w" ,pady=(0,0),padx = (0,30))
 
@@ -123,7 +127,7 @@ class pharmacyViewFrame(ttk.Frame):
             pagesize = 200,
             autofit = True,
             #selectmode="extended",
-            paginated=True,
+            paginated=False,
             #rowcolors=("white", "#f0f0f0"),
             #style="Custom.Treeview",  # Apply the custom style
 
@@ -140,7 +144,27 @@ class pharmacyViewFrame(ttk.Frame):
 
         # Pack the Treeview
         self.billTable.pack(expand=True, fill="both", pady=(10, 0))
+        
+        
+        def set_column_widths():
+        # Set explicit widths for each column
+            column_widths = {
+                "Time Stamp": 150,
+                "Patient Name": 150,
+                "Med Name": 150,
+                "MRP": 100,
+                "Qty": 100,
+                "Med Total": 150,
+                "PayMode": 200,
+                "Bill Amount": 100,
+                "Discout":75,
+                "Comments": 200
+    
+            }
 
+        #for col_name, width in column_widths.items():
+        #self.billTable.Ta(width=200, stretch=FALSE)
+        #set_column_widths()
         self.billTotalLabel = ttk.Label(master=self.billTableFrame, text="Bill Total: 0",
                                        font=("Calibri", 15, "bold"), 
                                         style="successTLabel."

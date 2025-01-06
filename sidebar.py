@@ -89,7 +89,7 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title('IMS 2024')
-        self.geometry('1230x900')
+        self.geometry('1410x900')
         #self.resizable(False, False)
 
 

@@ -193,7 +193,11 @@ class ClientMainViewFrame(ttk.Frame):
 
         
         # Title Section    
-        
+        style = ttk.Style()
+        style.configure(
+            "success.TButton",
+            font=("Helvetica", 14),  # Set a larger font size
+        )
         self.titleFrame = ttk.Frame(master=self)
         self.titleFrame.pack(anchor="w", pady=(29, 0), padx=27)
         
@@ -338,7 +342,7 @@ class ClientMainViewFrame(ttk.Frame):
         self.confirmButtonGrid = ttk.Frame(master=self, width=200)
         
         self.confirmButtonGrid.place(x=self.windowWidth//2)
-        self.confirmButtonGrid.pack(pady=(30,30))
+        self.confirmButtonGrid.pack(pady=(30,10))
 
         
         self.confirmDetailsButton = ttk.Button(master=self.confirmButtonGrid, text="Register",
@@ -361,13 +365,13 @@ class ClientMainViewFrame(ttk.Frame):
         
         
         self.warningLabel.place(x=self.windowWidth//2, y = 300)
-        self.warningLabel.pack()
+        self.warningLabel.pack(pady=(10,10))
         
         
         #Fetch Details
         self.fetchDetGrid = ttk.Frame(master=self)
         self.fetchDetGrid.place(x=self.windowWidth//2)
-        self.fetchDetGrid.pack(pady=(20, 0))
+        self.fetchDetGrid.pack()
 
         def uidEntryBind(event):
             if self.uidFetchEntry.get() == "Enter UID":
@@ -403,7 +407,7 @@ class ClientMainViewFrame(ttk.Frame):
         
         #Table section
         self.opTableFrame = ttk.Frame(master=self  )
-        self.opTableFrame.pack(expand=True, fill="both", padx=27, pady=20)
+        self.opTableFrame.pack(expand=True, fill="both", padx=27)
 
    
 
@@ -448,6 +452,7 @@ class ClientMainViewFrame(ttk.Frame):
         #self.opTable.pack(expand=True)
 
         self.billTotalLabel = ttk.Label(master=self.opTableFrame, text="Bill Total: 0",
+                                        font=("Calibri", 14, "bold"),
                                        style = "TLabel.success", justify="right"
                                         )
         self.billTotalLabel.pack(anchor="ne", side="right")
