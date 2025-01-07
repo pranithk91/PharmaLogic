@@ -34,7 +34,7 @@ class MainViewFrame(ttk.Frame):
 
         
         # Title Section     
-        padx_values = (40,40)
+        padx_values = (35,35)
         gridPadding = 30
         self.titleFrame = ttk.Frame(master=self)
         self.titleFrame.pack(anchor="w", pady=(29, 0), padx=27)
@@ -263,7 +263,7 @@ class MainViewFrame(ttk.Frame):
         self.payModeCombobox.bind('<<ComboboxSelected>>', activateBothEntries )"""
 
         quantity_frame = ttk.Frame(master=self.searchGrid, bootstyle="default")
-        quantity_frame.grid(row=1, column=1, padx=padx_values, pady=(0,0), sticky="w")
+        quantity_frame.grid(row=1, column=1, padx=(15,15), pady=(0,0), sticky="w")
 
         def quantityIncrease():
             currentEntry = self.qtySaleEntry.get()
