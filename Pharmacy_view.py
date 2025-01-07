@@ -76,7 +76,7 @@ class pharmacyViewFrame(ttk.Frame):
                 row_color = "white" if i % 2 == 0 else "#f0f0f0"
                 self.billTable.insert_row(index= END, values=list(x))#,tags={"style": {"background": row_color}})"""
             self.billTable.load_table_data()
-            self.billTotalLabel.configure(text=f"Cash : {Totals[1][1]}   UPI: {Totals[2][1]}  Both: {Totals[0][1]}, Total: {Totals[1][1]+Totals[2][1]+Totals[0][1]}")
+            self.billTotalLabel.configure(text=f"Cash : {Totals[1][1]}   UPI: {Totals[2][1]}  Both: {Totals[0][1]}       Total: {Totals[1][1]+Totals[2][1]+Totals[0][1]}")
             self.dateFetchEntry.entry.delete(0, tk.END)
             self.dateFetchEntry.entry.insert(0, strftime("%d-%m-%Y"))
         style = ttk.Style()
@@ -108,7 +108,7 @@ class pharmacyViewFrame(ttk.Frame):
         style.configure("Custom.Treeview", font=("Helvetica", 13), rowheight=25,borderwidth=1) 
                           # Set row font size and height
         style.configure("Custom.Treeview.Heading", font=("Helvetica", 13, "bold"), borderwidth=1)  # Set heading font size
-        style.map("Custom.Treeview", background=[("alternate", "#E8E8E8")])  # Striped rows
+        #style.map("Custom.Treeview", background=[("alternate", "#E8E8E8")])  # Striped rows
 
         
 
@@ -131,12 +131,12 @@ class pharmacyViewFrame(ttk.Frame):
             pagesize = 200,
             autofit = True,
             #selectmode="extended",
-            paginated=False,
+            paginated=True,
             #rowcolors=("white", "#f0f0f0"),
             #style="Custom.Treeview",  # Apply the custom style
 
             bootstyle = SUCCESS,
-            stripecolor=('lightsteelblue', 'black')
+            stripecolor=('#02b875', 'black')
 
         )
         self.billTable.configure(style="Custom.Treeview")
