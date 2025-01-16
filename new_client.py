@@ -133,7 +133,7 @@ class ClientMainViewFrame(ttk.Frame):
                 self.opTable.insert("", END, values=list(x)+[""])
             self.dateFetchEntry.entry.delete(0, tk.END)
             self.dateFetchEntry.entry.insert(0, strftime("%d-%m-%Y"))
-            self.billTotalLabel.configure(text=f"Total OP Count: {len(self.opTable.get_children())}")
+            updateOPSummary(selected_date)
         
         
 
