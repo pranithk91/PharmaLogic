@@ -19,7 +19,7 @@ from datetime import datetime
 
 class ClientMainViewFrame(ttk.Frame):
     def __init__(self, master=NONE):
-        super().__init__(master, width=950, height=850, relief = tk.GROOVE)
+        super().__init__(master, width=1050, height=850, relief = tk.GROOVE)
         self.pack_propagate(0)
         self.grid(column=1, row=0, padx=(30,30), pady=(10,10))
         
@@ -64,7 +64,8 @@ class ClientMainViewFrame(ttk.Frame):
                 messagebox.showwarning("Warning", " Phone number needs 10 digits.")
             else:
                 client_id = getClientID(currentClientName)
-                self.opTable.insert("",END, values=[client_id, strftime("%d-%m-%Y, %H:%M:%S"),  currentClientName, currentClientPhone, currentClientGender, currentClientAge, currentPaymentMode, currentAmount])
+                self.opTable.insert("",END, values=[client_id, strftime("%d-%m-%Y, %H:%M:%S"),  currentClientName, currentClientPhone,
+                                                     currentClientGender, currentClientAge, currentOPProc,  currentPaymentMode, currentAmount])
 
                 insertIntoTable('Patients', values= f"('{client_id}','{strftime('%Y-%m-%d')}','{currentClientName}','{currentClientPhone}', {currentClientAge}, '{currentClientGender}') ",
                     column_names= "UHId, Date, PName,PhoneNo,Age,Gender "
@@ -87,13 +88,14 @@ class ClientMainViewFrame(ttk.Frame):
                 self.clientOPCbox.set("")
                 self.clientAgeEntry.delete(0,len(currentClientAge)) 
                 self.clientPayModeCbox.set("")
-                self.clientAmountEntry.delete(0,len(currentAmount))  
+                self.clientAmountEntry.delete(0,len(currentAmount))
+                self.clientProcNameEntry.delete(0,len(currentProcName))  
                 self.billTotalLabel.configure(text=f"Total OP Count: {len(self.opTable.get_children())}")   
 
         def updateOPSummary(selected_value):
 
             Totals = selectTable('vw_OP_split',  condition=f"Date_format(OPDate, '%Y-%m-%d') = '{selected_value}' order by 2")
-            updateText1 = f"Total OP Count: {Totals[1][1]}   UPI: {Totals[1][3] + Totals[1][4]}  Cash: {Totals[0][3] + Totals[0][4]}, Half OP: {Totals[0][3] + Totals[1][3]}\n"
+            updateText1 = f"Total OP Count: {len(self.opTable.get_children())}   UPI: {Totals[1][3] + Totals[1][4]}  Cash: {Totals[0][3] + Totals[0][4]}, Half OP: {Totals[0][3] + Totals[1][3]}\n"
             updateText2 = f"Total Amounts: Cash: {Totals[0][2]}   UPI: {Totals[1][2]}"
             self.billTotalLabel.configure(text = updateText1+updateText2)
         
@@ -128,7 +130,7 @@ class ClientMainViewFrame(ttk.Frame):
             #client_id, strftime("%d-%m-%Y, %H:%M:%S"),  currentClientName, currentClientPhone, currentClientGender, currentClientAge, currentOPProc, currentPaymentMode, currentAmount
 
             for x in rowsWithDate:
-                self.opTable.insert("", END, values=list(x))
+                self.opTable.insert("", END, values=list(x)+[""])
             self.dateFetchEntry.entry.delete(0, tk.END)
             self.dateFetchEntry.entry.insert(0, strftime("%d-%m-%Y"))
             self.billTotalLabel.configure(text=f"Total OP Count: {len(self.opTable.get_children())}")
@@ -151,7 +153,7 @@ class ClientMainViewFrame(ttk.Frame):
                 return
 
             for x in rowsWithUID:
-                self.opTable.insert("", END, values=list(x))
+                self.opTable.insert("", END, values=list(x)+[""])
             
             self.uidFetchEntry.delete(0,END)
             self.uidFetchEntry.insert(0, "Enter UID")
@@ -170,7 +172,7 @@ class ClientMainViewFrame(ttk.Frame):
 
 
             for x in rowsWithPhone:
-                self.opTable.insert("", END, values=list(x))
+                self.opTable.insert("", END, values=list(x)+[""])
             self.billTotalLabel.configure(text=f"Total OP Count: {len(self.opTable.get_children())}")
 
         def fetchDetailsName():
@@ -190,7 +192,7 @@ class ClientMainViewFrame(ttk.Frame):
                 return
 
             for x in rowsWithName:
-                self.opTable.insert("", END, values=list(x))
+                self.opTable.insert("", END, values=list(x)+[""])
             self.billTotalLabel.configure(text=f"Total OP Count: {len(self.opTable.get_children())}")
 
 
@@ -202,7 +204,7 @@ class ClientMainViewFrame(ttk.Frame):
             removeAll()
 
             for x in rowsWithDate:
-                self.opTable.insert("", END, values=list(x))
+                self.opTable.insert("", END, values=list(x)+[""])
             
             
             updateOPSummary(selected_date)
@@ -436,7 +438,7 @@ class ClientMainViewFrame(ttk.Frame):
         
 
         self.opTable = ttk.Treeview(master=self.opTableFrame, style = "Treeview.success",
-                                    columns=["UID", "Time Stamp",  "Patient Name", "Phone No.", "Gender", "Age", "Payment Mode", "Amount"],
+                                    columns=["UID", "Time Stamp",  "Patient Name", "Phone No.", "Gender", "Age", "OP/Proc", "Payment Mode", "Amount", "Proc Name"],
                                     show="headings",
                                     #yscrollcommand=self.treeSrollBar,
                                     selectmode="extended",
@@ -448,9 +450,10 @@ class ClientMainViewFrame(ttk.Frame):
         self.opTable.column("Phone No.", width=75)
         self.opTable.column("Gender", width=75)
         self.opTable.column("Age",width=75)
-        #self.opTable.column("OP/Proc",width=75)
+        self.opTable.column("OP/Proc",width=75)
         self.opTable.column("Payment Mode",width=75)
         self.opTable.column("Amount", width=75)
+        self.opTable.column("Proc Name", width=75)
 
         self.opTable.heading("Time Stamp", text="Time Stamp", anchor=W)
         self.opTable.heading("UID", text="UID", anchor=W)
@@ -458,10 +461,11 @@ class ClientMainViewFrame(ttk.Frame):
         self.opTable.heading("Phone No.", text="Phone No.", anchor=W)
         self.opTable.heading("Gender", text="Gender", anchor=W)
         self.opTable.heading("Age", text="Age", anchor=W)
-        #self.opTable.heading("OP/Proc", text="OP/Proc", anchor=W)
+        self.opTable.heading("OP/Proc", text="OP/Proc", anchor=W)
         self.opTable.heading("Payment Mode", text="Payment Mode", anchor=W)
         self.opTable.heading("Amount", text="Amount", anchor=W)
-        
+        self.opTable.heading("Proc Name", text="Proc Name", anchor=W)
+
         self.opTable.pack(expand=True, fill='both')
 
         #self.opTable.pack(expand=True)
@@ -493,6 +497,7 @@ class ClientMainViewFrame(ttk.Frame):
             self.clientAgeEntry.delete(0,END)
             self.clientPayModeCbox.set("")
             self.clientAmountEntry.delete(0,END)
+            self.clientProcNameEntry.delete(0,END)
 
 
             # Grab record Number
@@ -505,14 +510,14 @@ class ClientMainViewFrame(ttk.Frame):
             self.clientUIDEntry.configure(state=NORMAL)
             self.clientUIDEntry.insert(0,values[0])
             self.clientUIDEntry.configure(state=DISABLED)
-            self.clientNameEntry.insert(0, values[1])
+            self.clientNameEntry.insert(0, values[2])
             self.clientPhoneEntry.insert(0, values[3])
             self.clientGenderCbox.set(values[4])
             self.clientAgeEntry.insert(0, values[5])
-            #self.clientOPCbox.set(values[6])
-            self.clientPayModeCbox.set(values[6])
-            self.clientAmountEntry.insert(0,values[7])
-            #self..insert(0, values[6])"""
+            self.clientOPCbox.set(values[6])
+            self.clientPayModeCbox.set(values[7])
+            self.clientAmountEntry.insert(0,values[8])
+            self.clientProcNameEntry.insert(0,values[9])
 
         #def update_record():
         self.opTable.bind("<Double-Button-1>", selectRecord)
