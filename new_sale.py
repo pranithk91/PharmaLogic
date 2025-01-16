@@ -401,8 +401,8 @@ class MainViewFrame(ttk.Frame):
                 self.warningLabel.configure(text = "Warning: Select the payment mode for this bill")
                 messagebox.showwarning("Warning", "Select the payment mode for this bill.")
             else:
-                insertIntoTable('MedicineInvoices', f"('{invDate}','{InvoiceId}' , '{clientUId}','{billTotal}','{discountAmount}','{payMode}','{clientName}', '{comment}')", 
-                                column_names= "InvoiceDate,	InvoiceId,	UHId,	TotalAmount,	DiscountAmount,	PaymentMode, PName, Comments" )
+                insertIntoTable('MedicineInvoices', f"('{invDate}','{InvoiceId}' , '{clientUId}','{billTotal}','{discountAmount}','{payMode}','{clientName}', '{clientPhone}', '{comment}')", 
+                                column_names= "InvoiceDate,	InvoiceId,	UHId,	TotalAmount,	DiscountAmount,	PaymentMode, PName, PhoneNo, Comments" )
                 #InvoiceDate	InvoiceId	UHId	TotalAmount	DiscountAmount	PaymentMode
             return InvoiceId    
 
