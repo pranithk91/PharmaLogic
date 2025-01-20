@@ -59,9 +59,9 @@ class pharmacyViewFrame(ttk.Frame):
         def fetchDetails():
             removeAll()
             selected_date = self.dateFetchEntry.entry.get()
-            
+            print(selected_date)
             selected_date = datetime.strptime(selected_date, "%d-%m-%Y").strftime("%Y-%m-%d")
-            
+            print(selected_date)
             rowsWithDate = selectTable('vw_dailyPharmacyDetails', condition=f"Date(InvoiceDate) = '{selected_date}'")
             self.billTable.build_table_data(coldata,rowsWithDate)
             
