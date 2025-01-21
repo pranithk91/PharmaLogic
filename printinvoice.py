@@ -194,8 +194,8 @@ def printBill(bill_No):
     c.showPage()
     c.save()
 
-
+"""
 billNo = 'PM2500808'
 #ptName = 'Arshiya'
 #billData = getBillDetails(billNo)
-printBill(billNo)
+printBill(billNo)"""
