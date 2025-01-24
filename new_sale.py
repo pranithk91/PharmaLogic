@@ -3,13 +3,13 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from PIL import Image
 from database import selectTable, insertIntoTable
-from CTkScrollableDropdown import *
+#from CTkScrollableDropdown import *
 import pandas as pd
 #from CTkTable import CTkTable
 from time import strftime
 #from new_client import ClientMainViewFrame
 import ttkbootstrap as ttb
-from autocomplete import AutoComplete
+#from autocomplete import AutoComplete
 import sqlite3
 from datetime import date
 from printinvoice import printBill
@@ -80,6 +80,7 @@ class MainViewFrame(ttk.Frame):
         
         currentDayPatientNames = getCurrentDayPatients()[1]
         
+        self.option_add("*TCombobox*Listbox*Font", ("calibri", 13, "bold"))
         self.clientNameLabel = ttk.Label(master=self.clientGrid, text="Patient Name", 
                                          
                                         font=("Calibri", 15, "bold"), style="success.TLabel", 
@@ -123,6 +124,7 @@ class MainViewFrame(ttk.Frame):
         
         self.clientPhoneEntry.grid(row=1, column=2, sticky='w', padx = padx_values)    
 
+        
 
         self.clientGenderLabel  = ttk.Label(master=self.clientGrid,
                                            text = "Gender",font=("Calibri", 15, "bold"), 
@@ -169,8 +171,17 @@ class MainViewFrame(ttk.Frame):
         
         def autofillMeds(event):
             currChar = self.itemNameEntry.get()
-            updatedList=[med for med in medSuggestionList if currChar.lower() in med.lower()]
+            updatedList=[med for med in medSuggestionList if med.lower().startswith(currChar.lower())]
             self.itemNameEntry.configure(values=updatedList)
+
+
+        style = ttk.Style()
+        style.configure(
+            "success.TButton",
+            font=("Helvetica", 14),  # Set a larger font size
+        )
+        
+        #style.configure("custom.TCombobox", font=("Helvetica", 18))
 
         self.itemNameEntry = ttk.Combobox(master=self.searchGrid, values=medSuggestionList,
                                           style='success.TCombobox',
@@ -229,11 +240,7 @@ class MainViewFrame(ttk.Frame):
             for record in self.billTable.get_children():
                 self.billTable.delete(record)   
         
-        style = ttk.Style()
-        style.configure(
-            "success.TButton",
-            font=("Helvetica", 14),  # Set a larger font size
-        )
+        
 
         self.addToBillButton = ttk.Button(master=self.searchGrid, text="Add to Bill", 
                                       style="success.TButton",# width=20, 

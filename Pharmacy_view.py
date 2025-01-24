@@ -59,9 +59,9 @@ class pharmacyViewFrame(ttk.Frame):
         def fetchDetails():
             removeAll()
             selected_date = self.dateFetchEntry.entry.get()
-            print(selected_date)
+            #print(selected_date)
             selected_date = datetime.strptime(selected_date, "%d-%m-%Y").strftime("%Y-%m-%d")
-            print(selected_date)
+            #print(selected_date)
             rowsWithDate = selectTable('vw_dailyPharmacyDetails', condition=f"Date(InvoiceDate) = '{selected_date}'")
             self.billTable.build_table_data(coldata,rowsWithDate)
             
@@ -76,7 +76,12 @@ class pharmacyViewFrame(ttk.Frame):
                 row_color = "white" if i % 2 == 0 else "#f0f0f0"
                 self.billTable.insert_row(index= END, values=list(x))#,tags={"style": {"background": row_color}})"""
             self.billTable.load_table_data()
-            self.billTotalLabel.configure(text=f"Cash : {Totals[1][1]}   UPI: {Totals[2][1]}  Both: {Totals[0][1]}       Total: {Totals[1][1]+Totals[2][1]+Totals[0][1]}")
+            try:
+                self.billTotalLabel.configure(text=f"Cash : {Totals[1][1]}   UPI: {Totals[2][1]}  Both: {Totals[0][1]}       Total: {Totals[1][1]+Totals[2][1]+Totals[0][1]}")
+            except Exception as e:
+                print(e)
+                
+                print()
             self.dateFetchEntry.entry.delete(0, tk.END)
             self.dateFetchEntry.entry.insert(0, strftime("%d-%m-%Y"))
         style = ttk.Style()
