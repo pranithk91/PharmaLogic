@@ -75,11 +75,15 @@ def my_temp(c):
     global AmtLine
     global billYLine
     global PcodeLine
+    global BatchLine
+    global ExpDateLine
 
     PcodeLine = 0.5
     ProductLine = PcodeLine + 0.9
-    RateLine = ProductLine + 2.4
-    QtyLine = RateLine+0.7
+    RateLine = ProductLine + 2
+    BatchLine = RateLine + 1
+    ExpDateLine = BatchLine + 0.8
+    QtyLine = ExpDateLine+0.7
     AmtLine = QtyLine+1.2
     
     billYLine = 1.9
@@ -92,11 +96,16 @@ def my_temp(c):
     c.drawString((ProductLine+0.05) * inch, 4.3 * inch, 'Product')  
     c.line(RateLine * inch,4.5* inch, RateLine * inch, billYLine * inch)
     c.drawString((RateLine+0.05) * inch, 4.3 * inch, 'Rate')
+    c.line(BatchLine * inch,4.5* inch, BatchLine * inch, billYLine * inch)
+    c.drawString((BatchLine+0.05) * inch, 4.3 * inch, 'Batch')
+    c.line(ExpDateLine * inch,4.5* inch, ExpDateLine * inch, billYLine * inch)
+    c.drawString((ExpDateLine+0.05) * inch, 4.3 * inch, 'Exp Dt')
     c.line(QtyLine * inch,4.5* inch, QtyLine * inch, billYLine * inch)
     c.drawString((QtyLine +0.05) * inch, 4.3 * inch, 'Quantity')
     c.line(AmtLine * inch,4.5* inch, AmtLine * inch, billYLine * inch)
     c.drawString((AmtLine+.05) * inch, 4.3 * inch, 'Amount')
     c.line(0.2, 4.2 * inch, 8.0 * inch, 4.2 * inch)
+    #c.line(0*inch, billYLine * inch, 8.0 * inch, billYLine * inch)
     # Other adjustments...
     
     
@@ -134,6 +143,8 @@ from reportlab.lib.pagesizes import letter, A5
 def printBill(bill_No):
     
     my_prod = getBillDetails(bill_No)
+
+    #print(my_prod)
     if my_prod[0][2]:
         ptName = my_prod[0][2]
     else:
@@ -148,8 +159,9 @@ def printBill(bill_No):
     c.setFont("Helvetica", 10)
     c.setFillColorRGB(0, 0, 1)
     c.drawString(6.2 * inch, 5.0 * inch, f'Invoice No: {bill_No}')
-
-    c.setFont("Helvetica", 8)
+    
+    c.setFont("Helvetica", 8) 
+    c.drawString(6.2 * inch, 4.8 * inch, f'To: {ptName}')
     row_gap=0.15 # gap between each row
     line_y=4.05 # location of fist Y position 
     total=0
@@ -158,9 +170,10 @@ def printBill(bill_No):
         print(rec)
         c.drawString((0.2+0.05)*inch,line_y*inch,str(i))
         c.drawString((PcodeLine+0.05)*inch,line_y*inch,str(rec[5])) # product Code
-        c.drawString((ProductLine+0.05)*inch,line_y*inch,str(rec[3])) # p Name
+        c.drawString((ProductLine+0.05)*inch,line_y*inch, str(rec[3])) # p Name
         c.drawString((RateLine +0.05)*inch,line_y*inch,str(rec[6])) # p Price
-        
+        c.drawString((BatchLine +0.05)*inch,line_y*inch,str(rec[7]))
+        c.drawString((ExpDateLine +0.05)*inch,line_y*inch,str(rec[8]))
         c.drawString((QtyLine+0.05)*inch,line_y*inch,str(rec[4])) # p Qant 
         sub_total=float(rec[6])*int(rec[4])
        
@@ -176,10 +189,13 @@ def printBill(bill_No):
     c.setFillColorRGB(0,0,1)
     c.drawString(6.8 * inch, 5.25 * inch, billDate)
     c.setFillColorRGB(0,0,0)
-    c.drawRightString((AmtLine -0.05)*inch, (billYLine-row_gap) * inch, 'Bill Amount: ')
+    c.drawRightString((AmtLine -0.05)*inch, (billYLine-row_gap) * inch, 'Gross Amount: ')
     c.drawString((AmtLine+0.05)*inch,(billYLine-row_gap)*inch,str(float(total))) # Total
-    c.drawString(0.2 * inch, (billYLine-row_gap) * inch, 'Name: ')
-    c.drawString((PcodeLine+0.08)*inch,(billYLine-row_gap)*inch,ptName)
+    c.drawRightString((AmtLine -0.05)*inch, (billYLine-row_gap*2) * inch, 'Discount: ')
+    c.drawRightString((AmtLine -0.05)*inch, (billYLine-row_gap*3) * inch, 'Net Amount: ')
+    c.drawString((AmtLine+0.05)*inch,(billYLine-row_gap*3)*inch,str(float(total)))
+    #c.drawString(0.2 * inch, (billYLine-row_gap) * inch, 'Name: ')
+    #c.drawString((PcodeLine+0.08)*inch,(billYLine-row_gap)*inch,ptName)
     #discount=round((discount_rate/100) * total,1)
     #c.drawRightString(4*inch,1.8*inch,str(discount_rate)+'%') # discount
     #c.drawRightString(7*inch,1.8*inch,'-'+str(discount)) # discount
@@ -195,7 +211,8 @@ def printBill(bill_No):
     c.save()
 
 """
-billNo = 'PM2500808'
+billNo = 'PM2507920'
 #ptName = 'Arshiya'
 #billData = getBillDetails(billNo)
 printBill(billNo)"""
+

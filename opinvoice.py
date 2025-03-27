@@ -190,7 +190,7 @@ def printBill(UHId):
     c.save()
 
 
-UHId = '2503S911'
+UHId = '2503L019'
 #ptName = 'Arshiya'
 #billData = getPatientDetails(UHId)
 printBill(UHId)

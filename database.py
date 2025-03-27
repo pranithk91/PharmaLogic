@@ -68,6 +68,27 @@ def getClientID(currentName):
     clientID = str(date.today().strftime("%y"))+str(date.today().strftime("%m"))+str(currentName[0]).upper()+str(NCount)
     return clientID
 
+def runQuery(query, condition):
+    
+    cursor, conn = db_cursor()
+    updateQuery = query + ' where ' + condition
+    try:
+        print(updateQuery)
+        cursor.execute(updateQuery)
+        conn.commit()
+        results = cursor.fetchall()
+   
+        if 'connection' in locals() and conn.is_connected():
+            cursor.close()
+            conn.close()
+            print("MariaDB connection is closed")
+        return results
+    except Error as e:
+        print(query)
+        print(f'Error in executing query: {e}')
+
+
+
 end_time = time.time()
 
 #print(end_time-start_time)

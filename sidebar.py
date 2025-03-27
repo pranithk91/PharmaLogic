@@ -7,6 +7,7 @@ from PIL import Image, ImageTk
 from Pharmacy_view import pharmacyViewFrame
 from new_client import ClientMainViewFrame
 from new_sale import MainViewFrame
+from price_update import PriceUpdateFrame
 
 import ttkbootstrap as tkb
 
@@ -42,8 +43,8 @@ class MedicineApp(ttk.Frame):
         self.returnsButton = self.create_button("Returns", "Images/returns_icon.png")
         self.returnsButton.pack(anchor="center", ipady=5, pady=(16, 0),padx=(25,25) )
         
-        self.settingsButton = self.create_button("Settings", "Images/settings_icon.png") 
-        self.settingsButton.pack(anchor="center", ipady=5, pady=(16, 0) ,padx=(25,25))
+        self.priceUpdateButton = self.create_button("Price Update", "Images/settings_icon.png", command=self.priceUpdate_frame) 
+        self.priceUpdateButton.pack(anchor="center", ipady=5, pady=(16, 0) ,padx=(25,25))
 
         self.accountButton = self.create_button("Account", "Images/person_icon.png")
         self.accountButton.pack(anchor="center", ipady=5, pady=(160, 80),padx=(25,25) )
@@ -65,6 +66,10 @@ class MedicineApp(ttk.Frame):
 
     def viewSale_frame(self):
         self.main_view = pharmacyViewFrame(self.master)
+        self.main_view.tkraise()
+
+    def priceUpdate_frame(self):
+        self.main_view = PriceUpdateFrame(self.master)
         self.main_view.tkraise()
 
 
@@ -107,7 +112,7 @@ class App(tk.Tk):
         self.ordersButton = self.create_button("Procedures", "package_icon.png")
         self.ordersListButton = self.create_button("Pharmacy", "list_icon.png")
         self.returnsButton = self.create_button("Returns", "returns_icon.png")
-        self.settingsButton = self.create_button("Settings", "settings_icon.png")
+        self.priceUpdateButton = self.create_button("Settings", "settings_icon.png")
         self.accountButton = self.create_button("Account", "person_icon.png", pady=(160, 0))
 
 
