@@ -38,7 +38,7 @@ class ClientMainViewFrame(ttk.Frame):
             self.clientAgeEntry.delete(0,END)
             self.clientPayModeCbox.set("")
             self.clientAmountEntry.delete(0,END)
-            self.clientProcNameEntry.delet(0,END)
+            self.clientProcNameEntry.delete(0,END)
         
 
         def addToTable():
