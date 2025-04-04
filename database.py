@@ -63,7 +63,7 @@ def insertIntoTable(table_name, values, column_names ):
 
 def getClientID(currentName):
     
-    NCount = selectTable('vw_Name_Counter', 'last_id', condition=f"starting_letter = '{currentName[0]}'" )
+    NCount = selectTable('vw_Name_Counter', 'last_id', condition=f"starting_letter COLLATE utf8mb4_general_ci =  '{currentName[0]}'" )
     NCount = f"{NCount[0][0]+1:03}"
     clientID = str(date.today().strftime("%y"))+str(date.today().strftime("%m"))+str(currentName[0]).upper()+str(NCount)
     return clientID
