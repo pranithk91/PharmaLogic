@@ -15,7 +15,7 @@ start_time = time.time()
 def getBillDetails(billNo):
     
 
-    rowsWithBillNo = selectTable('vw_getPharmacyDetails', condition=f"InvoiceId = '{billNo}'" )
+    rowsWithBillNo = selectTable('vw_print_invoice', condition=f"InvoiceId = '{billNo}'" )
     
     print(rowsWithBillNo)
     return rowsWithBillNo
@@ -29,8 +29,8 @@ def my_temp(c):
     c.setFont("Helvetica", 10)
     
     # Other adjustments...
-    c.setStrokeColorRGB(0, 1, 0)
-    c.setFillColorRGB(0,0,1)
+    c.setStrokeColorRGB(0, 0, 0)
+    c.setFillColorRGB(0,0,0)
     c.rotate(90)
     c.drawImage('Images\Logo.jpg',  3.55 * inch, 4.8 * inch, width=60, height=60)
     #c.drawImage('Images\Logo.png', 3.3 * inch, 4.8 * inch)
@@ -46,7 +46,7 @@ def my_temp(c):
     c.drawString(6.2 * inch, 4.6 * inch, f'Doctor: Dr. C Madhu Preethi')
 
     c.setFont("Helvetica", 10)
-    c.setStrokeColorRGB(0, 1, 0)  # line colour
+    c.setStrokeColorRGB(0, 0, 0)  # line colour
     c.line(0.2, 4.5 * inch, 8.0 * inch, 4.5 * inch)
     
     
@@ -56,7 +56,7 @@ def my_temp(c):
     
     # Other adjustments...
     
-    c.setFillColorRGB(1, 0, 0)  # font colour
+    c.setFillColorRGB(0, 0, 0)  # font colour
     c.setFont("Times-Bold", 16)
     c.drawString(3.5 * inch, 4.6 * inch, 'INVOICE')
 
@@ -80,10 +80,10 @@ def my_temp(c):
 
     PcodeLine = 0.5
     ProductLine = PcodeLine + 0.9
-    RateLine = ProductLine + 2
-    BatchLine = RateLine + 1
+    BatchLine = ProductLine + 2
     ExpDateLine = BatchLine + 0.8
-    QtyLine = ExpDateLine+0.7
+    RateLine = ExpDateLine + 0.7
+    QtyLine = RateLine + 1
     AmtLine = QtyLine+1.2
     
     billYLine = 1.9
@@ -123,11 +123,11 @@ def my_temp(c):
     c.drawString(3.5 * inch, -7.3 * inch, 'Signature')
     
     # Bottom Line color
-    c.setStrokeColorRGB(0.1, 0.8, 0.1)
+    c.setStrokeColorRGB(0,0,0)
     c.line(0, -7.8 * inch, 5.5 * inch, -7.8 * inch)
     
     c.setFont("Helvetica", 6)  # font size
-    c.setFillColorRGB(1, 0, 0)  # font colour
+    c.setFillColorRGB(0, 0, 0)  # font colour
     c.drawString(0, -8 * inch, u"\u00A9" + " plus2net.com")
     
     return c
@@ -157,7 +157,7 @@ def printBill(bill_No):
     c.setFillColorRGB(0,0,0) # font colour
 
     c.setFont("Helvetica", 10)
-    c.setFillColorRGB(0, 0, 1)
+    c.setFillColorRGB(0, 0, 0)
     c.drawString(6.2 * inch, 5.0 * inch, f'Invoice No: {bill_No}')
     
     c.setFont("Helvetica", 8) 
@@ -172,8 +172,8 @@ def printBill(bill_No):
         c.drawString((PcodeLine+0.05)*inch,line_y*inch,str(rec[5])) # product Code
         c.drawString((ProductLine+0.05)*inch,line_y*inch, str(rec[3])) # p Name
         c.drawString((RateLine +0.05)*inch,line_y*inch,str(rec[6])) # p Price
-        c.drawString((BatchLine +0.05)*inch,line_y*inch,str(rec[7]))
-        c.drawString((ExpDateLine +0.05)*inch,line_y*inch,str(rec[8]))
+        c.drawString((BatchLine +0.05)*inch,line_y*inch,str(rec[8]))
+        c.drawString((ExpDateLine +0.05)*inch,line_y*inch,str(rec[9]))
         c.drawString((QtyLine+0.05)*inch,line_y*inch,str(rec[4])) # p Qant 
         sub_total=float(rec[6])*int(rec[4])
        
@@ -186,7 +186,7 @@ def printBill(bill_No):
     #date_object = datetime.datetime.strptime(my_prod[0][1], '%d/%m/%Y, %H:%M:%S')
     billDate = str(my_prod[0][1].strftime('%d-%b-%Y'))
     c.setFont("Times-Bold", 10)
-    c.setFillColorRGB(0,0,1)
+    c.setFillColorRGB(0,0,0)
     c.drawString(6.8 * inch, 5.25 * inch, billDate)
     c.setFillColorRGB(0,0,0)
     c.drawRightString((AmtLine -0.05)*inch, (billYLine-row_gap) * inch, 'Gross Amount: ')
@@ -204,15 +204,16 @@ def printBill(bill_No):
     #c.drawRightString(7*inch,1.2*inch,str(tax)) # tax 
     total_final=total
     c.setFont("Times-Bold", 22)
-    c.setFillColorRGB(1,0,0) # font colour
+    c.setFillColorRGB(0,0,0) # font colour
     #c.drawRightString(2*inch,0.8*inch,str(total_final)) # tax 
     c.rotate(90)
     c.showPage()
     c.save()
 
-"""
-billNo = 'PM2507920'
+
+billNo = 'PM2509406'
 #ptName = 'Arshiya'
 #billData = getBillDetails(billNo)
-printBill(billNo)"""
+printBill(billNo)
+
 
