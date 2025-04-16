@@ -14,9 +14,9 @@ import sqlite3
 from datetime import date
 from printinvoice import printBill
 
-medData = selectTable('MedicineList', column_names="MId, MName,  CurrentStock, MType, MRP,  GST, Weight")
+"""medData = selectTable('MedicineList', column_names="MId, MName,  CurrentStock, MType, MRP,  GST, Weight")
 medicineDf=pd.DataFrame(medData, columns=['MId', 'MName',  'CurrentStock', 'MType', 'MRP',  'GST', 'Weight'])
-medSuggestionList = [med[1] for med in medData]
+medSuggestionList = [med[1] for med in medData]"""
 
 
 class MainViewFrame(ttk.Frame):
@@ -25,6 +25,12 @@ class MainViewFrame(ttk.Frame):
         self.pack_propagate(0)
         self.grid(column=1, row=0, pady = (10,10), padx=(25,25))
         today = date.today().strftime("%Y-%m-%d")
+
+        global medSuggestionList
+        global medicineDf
+        medData = selectTable('MedicineList', column_names="MId, MName,  CurrentStock, MType, MRP,  GST, Weight")
+        medicineDf=pd.DataFrame(medData, columns=['MId', 'MName',  'CurrentStock', 'MType', 'MRP',  'GST', 'Weight'])
+        medSuggestionList = [med[1] for med in medData]
        
         def clearBillTable():
             
@@ -191,11 +197,6 @@ class MainViewFrame(ttk.Frame):
         self.itemNameEntry.grid(row=1, column=0, sticky='w', padx = padx_values)
 
         self.itemNameEntry.bind('<<ComboboxSelected>>', onMedNameSelect)
-
-
-
-
-
         self.itemNameEntry.bind("<KeyRelease>", autofillMeds)
 
                    

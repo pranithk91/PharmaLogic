@@ -87,17 +87,24 @@ class returnsViewFrame(ttk.Frame):
 
         self.clientNameEntry.grid(row=1, column=2, sticky='w', padx = padx_values)
 
+        def clearPreviousSalesTable():
+            for record in self.previousSalesTable.get_children():
+                    self.previousSalesTable.delete(record)
+
         def getClientDetails(*args):  
             currentPhoneNo = self.clientPhoneEntry.get()            
             if len(currentPhoneNo) == 10:                
                 condition = f"PhoneNo = '{currentPhoneNo}'"
                 Patients = selectTable('Patients', condition=condition )
-                Medsalesdets = runStoredProc('sp_get_pharmacy_details_by_phone', currentPhoneNo)
+                Medsalesdets = runStoredProc('sp_get_pharmacy_details_by_phone', [currentPhoneNo])
                 PatientNames = [pat[2] for pat in Patients]
                 global currentPatientDf
-                global Medsalesdf
+                #global Medsalesdf
                 currentPatientDf=pd.DataFrame(Patients, columns=['UHId', 'Date', 'PName', 'PhoneNo', 'Age', 'Gender'])
-                currentPatientMedSales = pd.DataFrame(Medsalesdets[0], columns=Medsalesdets[1])
+                #currentPatientMedSales = pd.DataFrame(Medsalesdets[0], columns=Medsalesdets[1])
+                clearPreviousSalesTable()
+                for rec in Medsalesdets[0]:
+                    self.previousSalesTable.insert("",END, values=[rec[1], rec[3], rec[4]])
                 self.clientNameEntry.configure(values=PatientNames)
                     
             else:
@@ -305,31 +312,48 @@ class returnsViewFrame(ttk.Frame):
         self.warningLabel.place(x=self.windowWidth//2, y = 300)
         self.warningLabel.pack()
 
-        self.billTableFrame = ttk.Frame(master=self, bootstyle="default")
-        self.billTableFrame.pack(expand=True, fill="both", padx=gridPadding, pady=21)
 
-        self.clearTableButton = ttk.Button(master=self.billTableFrame, text="Clear Table",
+        #Tables Frame
+
+        self.TablesFrame = ttk.Frame(master=self, bootstyle="default")
+        self.TablesFrame.pack(expand=True, fill="both", padx=gridPadding, pady=21)
+
+        self.clearTableButton = ttk.Button(master=self.TablesFrame, text="Clear Table",
                                       
                                       style="success.TButton", 
                                       
                                       command=clearBillTable)
         self.clearTableButton.pack(side="top",  anchor = "ne")
 
-        self.billTable = ttk.Treeview(master=self.billTableFrame, 
+        self.previousSalesTable = ttk.Treeview(master=self.TablesFrame, 
+                                  columns=["Date", "Med Name", "Quantity"],
+                                  show="headings",
+                                    #yscrollcommand=self.treeSrollBar,
+                                    selectmode="extended",
+                                  style="success.Treeview")
+
+        self.billTable = ttk.Treeview(master=self.TablesFrame, 
                                   columns=["Time Stamp", "Med Name", "Type", "MRP", "Quantity", "Total Price"],
                                   show="headings",
                                     #yscrollcommand=self.treeSrollBar,
                                     selectmode="extended",
                                   style="success.Treeview")
-        #self.billTable.edit_row(0, text_color="#fff", hover_color="#2A8C55")
-        #self.billTable.pack(expand=True)
+        
+        self.previousSalesTable.column("Date", width=30)
+        self.previousSalesTable.column("Med Name", width=30)
+        self.previousSalesTable.column("Quantity", width=30)
 
-        self.billTable.column("Time Stamp", width=75)
-        self.billTable.column("Med Name", width=75)
-        self.billTable.column("Type", width=75)
-        self.billTable.column("MRP", width=75)
-        self.billTable.column("Quantity", width=75)
-        self.billTable.column("Total Price",width=75)
+        self.previousSalesTable.heading("Date", text="Type", anchor=W)
+        self.previousSalesTable.heading("Med Name", text="Type", anchor=W)
+        self.previousSalesTable.heading("Quantity", text="Type", anchor=W)
+
+        
+        self.billTable.column("Time Stamp", width=50)
+        self.billTable.column("Med Name", width=50)
+        self.billTable.column("Type", width=50)
+        self.billTable.column("MRP", width=50)
+        self.billTable.column("Quantity", width=50)
+        self.billTable.column("Total Price",width=50)
 
 
         self.billTable.heading("Time Stamp", text="Time Stamp", anchor=W)
@@ -338,14 +362,12 @@ class returnsViewFrame(ttk.Frame):
         self.billTable.heading("MRP", text="MRP", anchor=W)
         self.billTable.heading("Quantity", text="Quantity", anchor=W)
         self.billTable.heading("Total Price", text="Total Price", anchor=W)
-   
-        self.billTable.pack(expand=True, fill='both', pady=(10,0))
 
-        self.billTotalLabel = ttk.Label(master=self.billTableFrame, text="Bill Total: 0",
-                                       font=("Calibri", 15, "bold"), 
-                                        style="successTLabel."
-                                        )
-        self.billTotalLabel.pack(anchor="ne", side="right",pady=(20,0))
+        self.previousSalesTable.pack(side=LEFT, fill=BOTH, expand=True, pady=10, padx=(padx_values[0],0))
+        self.billTable.pack(side=RIGHT,  expand=True, fill='both', pady=10 ,padx=(padx_values[0],0))
+        
+
+        
 
         def addToInvoices():
             
@@ -366,7 +388,7 @@ class returnsViewFrame(ttk.Frame):
             else:
                 discountAmount = 0
 
-            InvoiceId = 'PM'+str(date.today().strftime("%y"))+str(f"{date.today().timetuple().tm_yday:03}")+str(Invcount)
+            
 
             if self.warningLabel.cget("text") == "Warning: Invalid Name" or self.warningLabel.cget("text") == "Warning: Phone number needs 10 digits":
                 self.warningLabel.configure(text = "")
@@ -395,7 +417,7 @@ class returnsViewFrame(ttk.Frame):
 
         def confirmDetails():
             
-            currInvoiceNo = addToInvoices() 
+            InvoiceId = 'PM'+str(date.today().strftime("%y"))+str(f"{date.today().timetuple().tm_yday:03}")+str(Invcount)
             #clientUId = self.clientUIDEntry.get()
             
             if self.warningLabel.cget("text") == "Warning: Invalid Name" or self.warningLabel.cget("text") == "Warning: Phone number needs 10 digits":
@@ -458,57 +480,45 @@ class returnsViewFrame(ttk.Frame):
             self.itemNameEntry.insert(0,values[1])
             self.qtySaleEntry.insert(0,values[4])
             billTotal = int(billTotal)-float(values[5])
-            self.billTotalLabel.configure(text= "Bill Total: " + str(billTotal))
+            self.billTotalLabel.configure(text= "Return Total: " + str(billTotal))
             #self.qtyInStockLabel.configure(text="Quantity in Stock:")
             #self..insert(0, values[6])"""
             onMedNameSelect(event)
 
         #def update_record():
+
+
         self.billTable.bind("<Double-Button-1>", selectRecord)
 
-        self.billConfirmButton = ttk.Button(master=self.billTableFrame, text="Confirm Details",
+        
+
+        
+  
+
+        
+
+        self.commentsFrame = ttk.Frame(master=self, bootstyle="default")
+        self.commentsFrame.pack(expand=True, fill="both", padx=gridPadding, pady=21)
+
+        self.billConfirmButton = ttk.Button(master=self.commentsFrame, text="Confirm Details",
                                       style="success.TButton",
                                       command=confirmDetails)
         
-        self.billConfirmButton.pack(anchor="ne", side="right",padx = (0,20), pady=(20,0))
+        self.billConfirmButton.grid(row=0, column=3, sticky="e", padx = padx_values)
 
-        self.discountLabel = ttk.Label(master=self.billTableFrame, text="Discount",
+        self.billTotalLabel = ttk.Label(master=self.commentsFrame, text="Bill Total: 0",
                                        font=("Calibri", 15, "bold"), 
-                                        style="success.TLabel"
+                                        style="successTLabel."
                                         )
-        self.discountLabel.pack(anchor="ne", side="left",pady=(20,0))
-        
-        discountAmount = IntVar()
-        self.discountEntry = ttk.Entry(master=self.billTableFrame, text="Discount",
-                                       textvariable=discountAmount,
-                                       font=("Calibri", 12, "bold"),
-                                       width=8,style="success.TEntry")
-        self.discountEntry.pack(anchor="ne", side="left",padx=(15,0), pady=(20,0))
-
-        
-        def applyDiscount():
-            discountedBillTotal = float(billTotal) - discountAmount.get()
-            self.billTotalLabel.configure(text= "Bill Total: " + str(discountedBillTotal))
-
-        self.applyDiscountButton = ttk.Button(master=self.billTableFrame, text="Apply Discount",
-                                style="success.TButton",
-                                command=applyDiscount)
-        
-        self.applyDiscountButton.pack(anchor="ne", side="left",padx=(15,0), pady=(20,0))
-
-        def focusEntry(event):
-           fw = master.focus_get()
-           fw.delete(0,END)
-
-        
-        self.commentLabel = ttk.Label(master=self.billTableFrame, text="Comments",
+        self.billTotalLabel.grid(row=0, column=2, sticky="w", padx = padx_values)
+        self.commentLabel = ttk.Label(master=self.commentsFrame, text="Comments",
                                       font=("Calibri", 15, "bold"), 
                                         style="success.TLabel")
-        self.commentLabel.pack(anchor="ne", side="left",padx=(15,0),pady=(20,0))
-        self.commentEntry = ttk.Entry(master=self.billTableFrame,                                        
+        self.commentLabel.grid(row=0, column=0, sticky="w", padx = padx_values)
+        self.commentEntry = ttk.Entry(master=self.commentsFrame,                                        
                                        font=("Calibri", 12, "bold"),
                                        width=30,style="success.TEntry")
-        self.commentEntry.pack(anchor="ne", side="left",padx=(10,0), pady=(20,0))
+        self.commentEntry.grid(row=0, column=1, sticky="w", padx = padx_values)
         
         #self.commentEntry.bind("<Button-1>", focusEntry)
         
