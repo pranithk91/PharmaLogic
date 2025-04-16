@@ -87,6 +87,13 @@ def runQuery(query, condition):
         print(query)
         print(f'Error in executing query: {e}')
 
+def runStoredProc(sp_name, parameter):
+    cursor, conn = db_cursor()
+    cursor.callproc(sp_name, parameter)
+    for result in cursor.stored_results():
+        rows = result.fetchall()
+        columns = [col[0] for col in result.description]
+        return rows, columns
 
 
 end_time = time.time()

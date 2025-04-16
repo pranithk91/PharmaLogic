@@ -1,18 +1,16 @@
 from customtkinter import *
 import tkinter as tk
 from tkinter import ttk, messagebox
-from PIL import Image
-from database import selectTable, insertIntoTable
+from database import selectTable, insertIntoTable, runStoredProc
 from CTkScrollableDropdown import *
 import pandas as pd
 #from CTkTable import CTkTable
 from time import strftime
 #from new_client import ClientMainViewFrame
-import ttkbootstrap as ttb
-from autocomplete import AutoComplete
-import sqlite3
 from datetime import date
+import ttkbootstrap as ttb
 from printinvoice import printBill
+
 
 medData = selectTable('MedicineList', column_names="MId, MName,  CurrentStock, MType, MRP,  GST, Weight")
 medicineDf=pd.DataFrame(medData, columns=['MId', 'MName',  'CurrentStock', 'MType', 'MRP',  'GST', 'Weight'])
@@ -69,59 +67,65 @@ class returnsViewFrame(ttk.Frame):
         self.clientUIDEntry.grid(row=1, column=0, sticky='w', padx = padx_values)        
         
 
-        def getCurrentDayPatients():
+ 
 
-            condition = f"Date = '{today}'"
-            Patients = selectTable('Patients', condition=condition )
-            PatientNames = [pat[2] for pat in Patients]
-            Patientdf=pd.DataFrame(Patients, columns=['UHId', 'Date', 'PName', 'PhoneNo', 'Age', 'Gender'])
-            
-            return Patientdf, PatientNames
-        
-        currentDayPatientNames = getCurrentDayPatients()[1]
         
         self.clientNameLabel = ttk.Label(master=self.clientGrid, text="Patient Name", 
                                          
                                         font=("Calibri", 15, "bold"), style="success.TLabel", 
                                         justify="left")
-        self.clientNameLabel.grid(row=0, column=1, sticky="w",padx = padx_values) 
+        self.clientNameLabel.grid(row=0, column=2, sticky="w",padx = padx_values) 
         currentPatientName = tk.StringVar()
-        self.clientNameEntry = ttk.Combobox(master=self.clientGrid, values=currentDayPatientNames,
+        self.clientNameEntry = ttk.Combobox(master=self.clientGrid, values=[],
                                             textvariable= currentPatientName,
                                           style='success.TCombobox',
                                           justify=LEFT, 
                                           font=("calibri", 12, "bold"), 
                                              cursor='hand2')
+        
+        
 
-        def on_name_select(event):
-            currentDayPatients = getCurrentDayPatients()[0]
-            currentPatientPhone = currentDayPatients.loc[currentDayPatients["PName"] == currentPatientName.get()]["PhoneNo"].tolist()
-            currentPatientGender = currentDayPatients.loc[currentDayPatients["PName"] == currentPatientName.get()]["Gender"].tolist()
-            currentPatientUID = currentDayPatients.loc[currentDayPatients["PName"] == currentPatientName.get()]["UHId"].tolist()
-            self.clientPhoneEntry.delete(0, END)
-            self.clientGenderCbox.set("")
-            self.clientUIDEntry.delete(0, END)
-            self.clientPhoneEntry.insert(0, str(currentPatientPhone[0]))
-            self.clientGenderCbox.set(currentPatientGender[0])
-            self.clientUIDEntry.insert(0,currentPatientUID[0] )
+        self.clientNameEntry.grid(row=1, column=2, sticky='w', padx = padx_values)
 
-        self.clientNameEntry.bind('<<ComboboxSelected>>', on_name_select)
-
-
-        #self.clientNameEntry.bind("<KeyRelease>", autofillNames)
-
-        self.clientNameEntry.grid(row=1, column=1, sticky='w', padx = padx_values)
-        #self.clientNameEntry.bind("<KeyRelease>", getUID)
+        def getClientDetails(*args):  
+            currentPhoneNo = self.clientPhoneEntry.get()            
+            if len(currentPhoneNo) == 10:                
+                condition = f"PhoneNo = '{currentPhoneNo}'"
+                Patients = selectTable('Patients', condition=condition )
+                Medsalesdets = runStoredProc('sp_get_pharmacy_details_by_phone', currentPhoneNo)
+                PatientNames = [pat[2] for pat in Patients]
+                global currentPatientDf
+                global Medsalesdf
+                currentPatientDf=pd.DataFrame(Patients, columns=['UHId', 'Date', 'PName', 'PhoneNo', 'Age', 'Gender'])
+                currentPatientMedSales = pd.DataFrame(Medsalesdets[0], columns=Medsalesdets[1])
+                self.clientNameEntry.configure(values=PatientNames)
+                    
+            else:
+                pass
+        
         
         self.clientPhoneLabel = ttk.Label(master=self.clientGrid, 
                                       text="Phone No:", font=("Calibri", 15, "bold"), 
                                       style="success.Tlabel", justify="left")
-        self.clientPhoneLabel.grid(row=0, column=2, sticky="w",padx = padx_values) 
+        self.clientPhoneLabel.grid(row=0, column=1, sticky="w",padx = padx_values) 
         self.clientPhoneEntry = ttk.Entry(master=self.clientGrid, 
                                          style="success.TEntry", width=25
                                          )
+        self.clientPhoneEntry.bind("<KeyRelease>", getClientDetails)
+        self.clientPhoneEntry.grid(row=1, column=1, sticky='w', padx = padx_values) 
+
+
         
-        self.clientPhoneEntry.grid(row=1, column=2, sticky='w', padx = padx_values)    
+        def on_name_select(event):
+            currentPatientGender = currentPatientDf.loc[currentPatientDf["PName"] == currentPatientName.get()]["Gender"].tolist()
+            currentPatientUID = currentPatientDf.loc[currentPatientDf["PName"] == currentPatientName.get()]["UHId"].tolist()
+            self.clientGenderCbox.set("")
+            self.clientUIDEntry.delete(0, END)
+            self.clientGenderCbox.set(currentPatientGender[0])
+            self.clientUIDEntry.insert(0,currentPatientUID[0] )
+
+        
+        self.clientNameEntry.bind('<<ComboboxSelected>>', on_name_select)
 
 
         self.clientGenderLabel  = ttk.Label(master=self.clientGrid,
@@ -133,14 +137,7 @@ class returnsViewFrame(ttk.Frame):
                                             justify=CENTER, font=("calibri", 12, "bold"), 
                                              cursor='hand2')
         self.clientGenderCbox.grid(row=1, column=3,sticky="w", padx = padx_values)
-
-        self.radioSelect = StringVar()
-
-        self.clientRadioButton = ttk.Checkbutton(master=self.clientGrid, text="Medicine Only",variable=self.radioSelect, style="success.TCheckbutton" )
-        self.clientRadioButton.grid(row=2, column=1,sticky="w", padx = padx_values, pady=(15,0))
-        
-
-        
+       
         # Search Section
         self.searchGrid = ttk.Frame(master=self, bootstyle="default")
         self.searchGrid.pack(fill="both", padx=gridPadding, pady=(31, 0))
@@ -180,25 +177,11 @@ class returnsViewFrame(ttk.Frame):
         self.itemNameEntry.grid(row=1, column=0, sticky='w', padx = padx_values)
 
         self.itemNameEntry.bind('<<ComboboxSelected>>', onMedNameSelect)
-
-
-
-
-
         self.itemNameEntry.bind("<KeyRelease>", autofillMeds)
 
-                   
-            
 
-
-        
-
-    
-        
         def addToBill():
-            #global currentMedQty 
-            #global currentMedPrice
-            #global currentMedType 
+            
             global currentMedName
             global billTotal 
             
