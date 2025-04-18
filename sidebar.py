@@ -8,6 +8,7 @@ from Pharmacy_view import pharmacyViewFrame
 from new_client import ClientMainViewFrame
 from new_sale import MainViewFrame
 from price_update import PriceUpdateFrame
+from returns import returnsViewFrame
 
 import ttkbootstrap as tkb
 
@@ -40,7 +41,7 @@ class MedicineApp(ttk.Frame):
         self.viewSalesButton = self.create_button("View Sales", "Images/settings_icon.png", command=self.viewSale_frame) 
         self.viewSalesButton.pack(anchor="center", ipady=5, pady=(16, 0) ,padx=(25,25))
 
-        self.returnsButton = self.create_button("Returns", "Images/returns_icon.png")
+        self.returnsButton = self.create_button("Returns", "Images/returns_icon.png", command=self.returns_frame)
         self.returnsButton.pack(anchor="center", ipady=5, pady=(16, 0),padx=(25,25) )
         
         self.priceUpdateButton = self.create_button("Price Update", "Images/settings_icon.png", command=self.priceUpdate_frame) 
@@ -70,6 +71,10 @@ class MedicineApp(ttk.Frame):
 
     def priceUpdate_frame(self):
         self.main_view = PriceUpdateFrame(self.master)
+        self.main_view.tkraise()
+
+    def returns_frame(self):
+        self.main_view = returnsViewFrame(self.master)
         self.main_view.tkraise()
 
 
