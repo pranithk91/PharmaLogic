@@ -91,20 +91,21 @@ class returnsViewFrame(ttk.Frame):
             for record in self.previousSalesTable.get_children():
                     self.previousSalesTable.delete(record)
 
+        currentPhoneNo = ""
+
         def getClientDetails(*args):  
+            global currentPhoneNo
             currentPhoneNo = self.clientPhoneEntry.get()            
             if len(currentPhoneNo) == 10:                
                 condition = f"PhoneNo = '{currentPhoneNo}'"
                 Patients = selectTable('Patients', condition=condition )
-                Medsalesdets = runStoredProc('sp_get_pharmacy_details_by_phone', [currentPhoneNo])
+                
                 PatientNames = [pat[2] for pat in Patients]
                 global currentPatientDf
                 #global Medsalesdf
                 currentPatientDf=pd.DataFrame(Patients, columns=['UHId', 'Date', 'PName', 'PhoneNo', 'Age', 'Gender'])
                 #currentPatientMedSales = pd.DataFrame(Medsalesdets[0], columns=Medsalesdets[1])
-                clearPreviousSalesTable()
-                for rec in Medsalesdets[0]:
-                    self.previousSalesTable.insert("",END, values=[rec[1], rec[3], rec[4]])
+                
                 self.clientNameEntry.configure(values=PatientNames)
                     
             else:
@@ -126,6 +127,11 @@ class returnsViewFrame(ttk.Frame):
         def on_name_select(event):
             currentPatientGender = currentPatientDf.loc[currentPatientDf["PName"] == currentPatientName.get()]["Gender"].tolist()
             currentPatientUID = currentPatientDf.loc[currentPatientDf["PName"] == currentPatientName.get()]["UHId"].tolist()
+            clearPreviousSalesTable()
+            Medsalesdets = runStoredProc('sp_get_pharmacy_details_by_phone', [currentPhoneNo])
+            for rec in Medsalesdets[0]:
+                self.previousSalesTable.insert("",END, values=[rec[1], rec[3], rec[4]])
+            
             self.clientGenderCbox.set("")
             self.clientUIDEntry.delete(0, END)
             self.clientGenderCbox.set(currentPatientGender[0])
@@ -169,7 +175,7 @@ class returnsViewFrame(ttk.Frame):
             currentMedType = str(medicineDf.loc[medicineDf["MName"] == currentMedName]["MType"].iloc[0])
             
             
-            self.qtyInStockLabel.configure(text="Quantity in Stock:"+ str(currentMedQty))  
+            self.qtyInStockLabel.configure(text="Quantity in Stock:"+ str(currentMedQty) + '\n' + "MRP:" + str(currentMedPrice))  
         
         def autofillMeds(event):
             currChar = self.itemNameEntry.get()
@@ -191,20 +197,14 @@ class returnsViewFrame(ttk.Frame):
             
             global currentMedName
             global billTotal 
-            
-            
             currentMedName = self.itemNameEntry.get()
             currentSaleQty = self.qtySaleEntry.get()
-            #currentMedQty,currentMedType,currentMedPrice = getMedDetails(currentMedName)
-
-            
-            totalSalePrice = int(currentSaleQty)*float(currentMedPrice)
-            
-            #numRows=self.billTable.rows
-  
-            self.billTable.insert("",END, values=[strftime("%d/%m/%Y, %H:%M:%S"),currentMedName, currentMedType, currentMedPrice, currentSaleQty, totalSalePrice])
+            newPrice = self.NewMRPEntry.get()                        
+            totalSalePrice = int(currentSaleQty)*float(newPrice)
+            self.billTable.insert("",END, values=[strftime("%d/%m/%Y, %H:%M:%S"),currentMedName, currentMedType, currentMedPrice, newPrice, currentSaleQty, totalSalePrice])
             self.itemNameEntry.delete(0,len(currentMedName))
             self.qtySaleEntry.delete(0,len(currentSaleQty))
+            self.NewMRPEntry.delete(0,END)
             #print("number of rows:",self.billTable.rows)
             if len(self.billTable.get_children()) ==  1: #If there is one entry in table
                 billTotal = int(totalSalePrice)
@@ -232,25 +232,20 @@ class returnsViewFrame(ttk.Frame):
         
         #self.addToBillButton.configure(style="Large.TButton")
 
-        self.payModeLabel = ttk.Label(master=self.searchGrid, 
+        """self.payModeLabel = ttk.Label(master=self.searchGrid, 
                                       text="Payment Mode", font=("Calibri", 15, "bold"), 
                                       style="success.TLabel")
-        self.payModeLabel.grid(row=0, column=3, sticky="w", padx = padx_values)
-        self.payModeCombobox = ttk.Combobox(master=self.searchGrid, values=["Cash", "UPI", "Both","Card"],
-                                          style='success.TCombobox',
-                                          justify=LEFT, 
-                                          font=("calibri", 12, "bold"), 
-                                             cursor='hand2')
-        self.payModeCombobox.grid(row=1, column=3, sticky='w', padx = padx_values)
+        self.payModeLabel.grid(row=0, column=4, sticky="w", padx = [padx_values[0],1])"""
         
-        """def activateBothEntries(event):
-            if self.payModeCombobox.get() == 'Both':
-                self.commentEntry.configure(state=NORMAL)
-                
-                self.commentEntry.insert(0,"Cash")
-                self.upiAmtEntry.configure(state=NORMAL)
-                self.upiAmtEntry.insert(0,"UPI")
-        self.payModeCombobox.bind('<<ComboboxSelected>>', activateBothEntries )"""
+        
+        self.NewMRPLabel = ttk.Label(master=self.searchGrid, 
+                                      text="NewMRPLabel", font=("Calibri", 15, "bold"), 
+                                      style="success.Tlabel", justify="left")
+        self.NewMRPLabel.grid(row=0, column=3, sticky="w",padx =  [padx_values[0],0]) 
+        self.NewMRPEntry = ttk.Entry(master=self.searchGrid, 
+                                         style="success.TEntry", width=25
+                                         )
+        self.NewMRPEntry.grid(row=1, column=3, sticky='w', padx = padx_values) 
 
         quantity_frame = ttk.Frame(master=self.searchGrid, bootstyle="default")
         quantity_frame.grid(row=1, column=1, padx=(15,15), pady=(0,0), sticky="w")
@@ -318,6 +313,8 @@ class returnsViewFrame(ttk.Frame):
         self.TablesFrame = ttk.Frame(master=self, bootstyle="default")
         self.TablesFrame.pack(expand=True, fill="both", padx=gridPadding, pady=21)
 
+        
+
         self.clearTableButton = ttk.Button(master=self.TablesFrame, text="Clear Table",
                                       
                                       style="success.TButton", 
@@ -333,7 +330,7 @@ class returnsViewFrame(ttk.Frame):
                                   style="success.Treeview")
 
         self.billTable = ttk.Treeview(master=self.TablesFrame, 
-                                  columns=["Time Stamp", "Med Name", "Type", "MRP", "Quantity", "Total Price"],
+                                  columns=["Time Stamp", "Med Name", "Type", "MRP", "NewPrice", "Qty", "Total"],
                                   show="headings",
                                     #yscrollcommand=self.treeSrollBar,
                                     selectmode="extended",
@@ -352,72 +349,38 @@ class returnsViewFrame(ttk.Frame):
         self.billTable.column("Med Name", width=50)
         self.billTable.column("Type", width=50)
         self.billTable.column("MRP", width=50)
-        self.billTable.column("Quantity", width=50)
-        self.billTable.column("Total Price",width=50)
+        self.billTable.column("NewPrice", width=50)
+        self.billTable.column("Qty", width=50)
+        self.billTable.column("Total",width=50)
 
 
         self.billTable.heading("Time Stamp", text="Time Stamp", anchor=W)
         self.billTable.heading("Med Name", text="Med Name", anchor=W)
         self.billTable.heading("Type", text="Type", anchor=W)
         self.billTable.heading("MRP", text="MRP", anchor=W)
-        self.billTable.heading("Quantity", text="Quantity", anchor=W)
-        self.billTable.heading("Total Price", text="Total Price", anchor=W)
+        self.billTable.heading("NewPrice", text="NewPrice", anchor=W)
+        self.billTable.heading("Qty", text="Quantity", anchor=W)
+        self.billTable.heading("Total", text="Total", anchor=W)
 
         self.previousSalesTable.pack(side=LEFT, fill=BOTH, expand=True, pady=10, padx=(padx_values[0],0))
         self.billTable.pack(side=RIGHT,  expand=True, fill='both', pady=10 ,padx=(padx_values[0],0))
         
 
+        def getReturnId():
+            year=str(date.today().strftime("%y"))
+            condition = f"ReturnId like '%PM{year}%'"
+            maxReturnCount = selectTable('Returns', column_names='max(ReturnTrack)', condition=condition)
+            if not maxReturnCount[0][0]:
+                newReturnId = f"PM{year}RE001"
+            else:
+                maxReturnCount = int(maxReturnCount[0][0][-3:])
+                newReturnCount = f"{maxReturnCount+1:03}"            
+                newReturnId = f"PM{year}RE{newReturnCount}"
+            return newReturnId
         
-
-        def addToInvoices():
-            
-            #insLastRowNo = len(inoviceWS.col_values(insDateColNo))+1
-            clientName = self.clientNameEntry.get()
-            clientPhone = self.clientPhoneEntry.get()
-            comment = self.commentEntry.get()
-            
-            payMode = self.payModeCombobox.get()
-            clientUId = self.clientUIDEntry.get()
-            invDate = strftime("%Y-%m-%d %H:%M")
-            condition = f"Date_format(InvoiceDate, '%Y-%m-%d')  = '{today}'"
-            Invcount = selectTable('MedicineInvoices', column_names='count(*)', condition=condition )
-            Invcount = f"{Invcount[0][0]+1:02}"
-            if self.discountEntry.get():
-                discountAmount = int(self.discountEntry.get())
-                #billTotal = billTotal-discountAmount
-            else:
-                discountAmount = 0
-
-            
-
-            if self.warningLabel.cget("text") == "Warning: Invalid Name" or self.warningLabel.cget("text") == "Warning: Phone number needs 10 digits":
-                self.warningLabel.configure(text = "")
-            
-            if len(clientName)==0:
-                self.warningLabel.configure(text = "Warning: Invalid Name")
-                messagebox.showwarning("Warning", "Invalid Name")
-
-            
-            elif len (clientPhone) != 10:
-                self.warningLabel.configure(text = "Warning: Phone number needs 10 digits")
-                messagebox.showwarning("Warning", " Phone number needs 10 digits.")
-
-            elif len(payMode) == 0:
-                self.warningLabel.configure(text = "Warning: Select the payment mode for this bill")
-                messagebox.showwarning("Warning", "Select the payment mode for this bill.")
-            else:
-                insertIntoTable('MedicineInvoices', f"('{invDate}','{InvoiceId}' , '{clientUId}','{billTotal}','{discountAmount}','{payMode}','{clientName}', '{comment}')", 
-                                column_names= "InvoiceDate,	InvoiceId,	UHId,	TotalAmount,	DiscountAmount,	PaymentMode, PName, Comments" )
-                #InvoiceDate	InvoiceId	UHId	TotalAmount	DiscountAmount	PaymentMode
-            return InvoiceId    
-
-
-
-
-
         def confirmDetails():
             
-            InvoiceId = 'PM'+str(date.today().strftime("%y"))+str(f"{date.today().timetuple().tm_yday:03}")+str(Invcount)
+            returnTrack = getReturnId()
             #clientUId = self.clientUIDEntry.get()
             
             if self.warningLabel.cget("text") == "Warning: Invalid Name" or self.warningLabel.cget("text") == "Warning: Phone number needs 10 digits":
@@ -427,26 +390,26 @@ class returnsViewFrame(ttk.Frame):
                 
                 billData = []
                 billItems = len(self.billTable.get_children())
-                
+                retDate = strftime("%Y-%m-%d %H:%M")
+                PName = self.clientNameEntry.get()
                 BTotal = 0
                 for record in self.billTable.get_children():
                     
                     recValues = list(self.billTable.item(record,'values'))
                     
                     billData.append(recValues)
-                    saleId = currInvoiceNo+str(f"{len(billData):02}")
+                    returnId = returnTrack+str(f"{len(billData):02}")
                     currentMedName = recValues[1]
                     currentMedId = str(medicineDf.loc[medicineDf["MName"] == currentMedName]["MId"].iloc[0])
-                    MTotal = float(recValues[5])
+                    MTotal = float(recValues[4])
                     BTotal = float(BTotal)+float(MTotal)
-                    insertIntoTable('Pharmacy', f"('{saleId}','{currentMedId}','{currInvoiceNo}' , '{recValues[4]}','{MTotal}','{BTotal}')", 
-                                column_names= "SaleId,	MId,	InvoiceId,	Mstock,	MTotal,	BTotal" )
-                    
-
-                printBill(currInvoiceNo)
+                    payMode = self.payModeCombobox.get()
+                    insertIntoTable('Returns', f"('{returnId}','{retDate}','{currentMedId}' , '{recValues[1]}','{currentPhoneNo}','{recValues[5]}', '{recValues[5]}','{payMode}', '{returnTrack}', '{PName}')",
+                                column_names= "ReturnId, Date, MId, MName, PhoneNo, Quantity, MRP, PaymentMode, ReturnTrack, PName" )
 
                 for record in self.billTable.get_children():
                     self.billTable.delete(record)
+                clearPreviousSalesTable()
 
                 self.clientUIDEntry.delete(0,END)
                 self.clientNameEntry.delete(0,END)     
@@ -454,20 +417,12 @@ class returnsViewFrame(ttk.Frame):
                 self.clientGenderCbox.set("")   
                 self.payModeCombobox.set("")
                 self.commentEntry.delete(0,END)
-                self.discountEntry.delete(0,END)
-
-                  
-                                 
-            
-
-
+                
 
         def selectRecord(event):
             # Clear entry boxes
             self.itemNameEntry.delete(0,END)
             self.qtySaleEntry.delete(0,END)
-            
-            
             # Grab record Number
             selected = self.billTable.focus()
             # Grab record values
@@ -478,8 +433,9 @@ class returnsViewFrame(ttk.Frame):
             #print(values)
             # outpus to entry boxes
             self.itemNameEntry.insert(0,values[1])
-            self.qtySaleEntry.insert(0,values[4])
-            billTotal = int(billTotal)-float(values[5])
+            self.qtySaleEntry.insert(0,values[5])
+            self.NewMRPEntry.insert(0,values[4])
+            billTotal = int(billTotal)-float(values[4])
             self.billTotalLabel.configure(text= "Return Total: " + str(billTotal))
             #self.qtyInStockLabel.configure(text="Quantity in Stock:")
             #self..insert(0, values[6])"""
@@ -490,13 +446,6 @@ class returnsViewFrame(ttk.Frame):
 
         self.billTable.bind("<Double-Button-1>", selectRecord)
 
-        
-
-        
-  
-
-        
-
         self.commentsFrame = ttk.Frame(master=self, bootstyle="default")
         self.commentsFrame.pack(expand=True, fill="both", padx=gridPadding, pady=21)
 
@@ -504,22 +453,28 @@ class returnsViewFrame(ttk.Frame):
                                       style="success.TButton",
                                       command=confirmDetails)
         
-        self.billConfirmButton.grid(row=0, column=3, sticky="e", padx = padx_values)
+        self.billConfirmButton.grid(row=0, column=4, sticky="e", padx = [padx_values[0],0])
 
         self.billTotalLabel = ttk.Label(master=self.commentsFrame, text="Bill Total: 0",
                                        font=("Calibri", 15, "bold"), 
                                         style="successTLabel."
                                         )
-        self.billTotalLabel.grid(row=0, column=2, sticky="w", padx = padx_values)
+        self.billTotalLabel.grid(row=0, column=3, sticky="w", padx = [padx_values[0],0])
         self.commentLabel = ttk.Label(master=self.commentsFrame, text="Comments",
                                       font=("Calibri", 15, "bold"), 
                                         style="success.TLabel")
-        self.commentLabel.grid(row=0, column=0, sticky="w", padx = padx_values)
+        self.commentLabel.grid(row=0, column=0, sticky="w", padx = [padx_values[0],0])
         self.commentEntry = ttk.Entry(master=self.commentsFrame,                                        
                                        font=("Calibri", 12, "bold"),
-                                       width=30,style="success.TEntry")
-        self.commentEntry.grid(row=0, column=1, sticky="w", padx = padx_values)
+                                       width=25,style="success.TEntry")
+        self.commentEntry.grid(row=0, column=1, sticky="w", padx = [padx_values[0],0])
         
+        self.payModeCombobox = ttk.Combobox(master=self.commentsFrame, text="Payment Mode", values=["Cash", "UPI", "Both","Card"],
+                                          style='success.TCombobox',
+                                          justify=LEFT, 
+                                          font=("calibri", 12, "bold"), 
+                                             cursor='hand2')
+        self.payModeCombobox.grid(row=0, column=2, sticky='w', padx =  [padx_values[0],0])
         #self.commentEntry.bind("<Button-1>", focusEntry)
         
 
