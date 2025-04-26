@@ -60,7 +60,10 @@ class pharmacyViewFrame(ttk.Frame):
             removeAll()
             selected_date = self.dateFetchEntry.entry.get()
             #print(selected_date)
-            selected_date = datetime.strptime(selected_date, "%d-%m-%Y").strftime("%Y-%m-%d")
+            if '/' in selected_date: 
+                selected_date = datetime.strptime(selected_date, "%m/%d/%Y").strftime("%Y-%m-%d")
+            else:
+                selected_date = datetime.strptime(selected_date, "%d-%m-%Y").strftime("%Y-%m-%d")
             #print(selected_date)
             rowsWithDate = selectTable('vw_dailyPharmacyDetails', condition=f"Date(InvoiceDate) = '{selected_date}'")
             self.billTable.build_table_data(coldata,rowsWithDate)
@@ -83,7 +86,10 @@ class pharmacyViewFrame(ttk.Frame):
                 
                 print()
             self.dateFetchEntry.entry.delete(0, tk.END)
-            self.dateFetchEntry.entry.insert(0, strftime("%d-%m-%Y"))
+            if '/' in selected_date: 
+                self.dateFetchEntry.entry.insert(0, strftime("%m/%d/%Y"))
+            else:
+                self.dateFetchEntry.entry.insert(0, strftime("%d-%m-%Y"))
         style = ttk.Style()
         style.configure(
             "success.TButton",
