@@ -23,5 +23,9 @@ def runQuery(query, condition):
 def to_dataframe(query):
     return asyncio.run(async_to_dataframe(query))
 
+def runStoredProc(spName, parameter=None):
+    pass
+
+
 
 
