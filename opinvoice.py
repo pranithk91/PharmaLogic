@@ -191,9 +191,9 @@ def printBill(UHId):
 
 
 
-
+"""
 UHId = '2501A026'
 #ptName = 'Arshiya'
 #billData = getPatientDetails(UHId)
 printBill(UHId)
-
+"""
