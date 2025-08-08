@@ -1,7 +1,7 @@
 from customtkinter import *
 import tkinter as tk
 from tkinter import ttk, messagebox
-from database import selectTable, insertIntoTable, runStoredProc
+from database_sync import selectTable, insertIntoTable, runStoredProc
 from CTkScrollableDropdown import *
 import pandas as pd
 #from CTkTable import CTkTable

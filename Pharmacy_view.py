@@ -1,7 +1,7 @@
 from customtkinter import *
 import tkinter as tk
 from tkinter import ttk
-from database import selectTable, getClientID, insertIntoTable
+from database_sync import selectTable
 import pandas as pd
 from time import strftime
 from datetime import datetime
@@ -68,7 +68,7 @@ class pharmacyViewFrame(ttk.Frame):
             rowsWithDate = selectTable('vw_dailyPharmacyDetails', condition=f"Date(InvoiceDate) = '{selected_date}'")
             self.billTable.build_table_data(coldata,rowsWithDate)
             
-            Totals = selectTable('vw_cashUPI_split', column_names='PaymentMode, Totals', condition=f"Date_format(InvoiceDate, '%Y-%m-%d') = '{selected_date}' order by 1")
+            Totals = selectTable('vw_cashUPI_split', column_names='PaymentMode, Totals', condition=f"strftime('%Y-%m-%d', InvoiceDate) = '{selected_date}' order by 1")
 
 
 

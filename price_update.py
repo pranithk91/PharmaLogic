@@ -2,7 +2,7 @@ from customtkinter import *
 import tkinter as tk
 from tkinter import ttk, messagebox
 from PIL import Image
-from database import selectTable, runQuery
+from database_sync import selectTable, runQuery
 #from CTkScrollableDropdown import *
 import pandas as pd
 #from CTkTable import CTkTable

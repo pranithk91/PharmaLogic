@@ -6,7 +6,7 @@ import pandas as pd
 
 import time
 import datetime
-from database import selectTable
+from database_sync import selectTable
 
 
 start_time = time.time()
@@ -118,7 +118,7 @@ def my_temp(c):
     c.setFont("Times-Roman", 12)
     c.drawString(3.5 * inch, -7.3 * inch, 'Signature')
     
-    # Bottom Line color
+    #Bottom Line color
     c.setStrokeColorRGB(0.1, 0.8, 0.1)
     c.line(0, -7.8 * inch, 5.5 * inch, -7.8 * inch)
     
@@ -170,7 +170,7 @@ def printBill(UHId):
     c.drawString((AmtLine+.05) * inch, line_y * inch, f'{currAmount}')
         
     #date_object = datetime.datetime.strptime(my_prod[0][1], '%d/%m/%Y, %H:%M:%S')
-    billDate = str(my_prod[1].strftime('%d-%b-%Y'))
+    billDate = my_prod[1]
     c.setFont("Times-Bold", 10)
     c.setFillColorRGB(0,0,1)
     c.drawString(6.8 * inch, 5.25 * inch, billDate)
@@ -190,7 +190,9 @@ def printBill(UHId):
     c.save()
 
 
-UHId = '2503L019'
+
+
+UHId = '2501A026'
 #ptName = 'Arshiya'
 #billData = getPatientDetails(UHId)
 printBill(UHId)

@@ -3,10 +3,8 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from tkinter import *
 from PIL import Image, ImageTk
-from database import selectTable, getClientID, insertIntoTable
-#from CTkScrollableDropdown import *
+from database_sync import selectTable, getClientID, insertIntoTable
 import pandas as pd
-#from CTkTable import CTkTable
 from time import strftime
 import sqlite3
 #from tkcalendar import DateEntry
@@ -14,6 +12,7 @@ import ttkbootstrap as tkb
 #from treeactions import *
 from datetime import datetime
 #from gspreaddb import getOPData,getClientid, opWS
+from opinvoice import printBill
 
 
 
@@ -91,10 +90,12 @@ class ClientMainViewFrame(ttk.Frame):
                 self.clientAmountEntry.delete(0,len(currentAmount))
                 self.clientProcNameEntry.delete(0,len(currentProcName))  
                 self.billTotalLabel.configure(text=f"Total OP Count: {len(self.opTable.get_children())}")   
+                
+                printBill(client_id)
 
         def updateOPSummary(selected_value):
 
-            Totals = selectTable('vw_OP_split',  condition=f"Date_format(OPDate, '%Y-%m-%d') = '{selected_value}' order by 2")
+            Totals = selectTable('vw_OP_split',  condition=f"strftime('%Y-%m-%d', OPDate) = '{selected_value}' order by 2")
             if len(Totals) == 2:
                 updateText1 = f"Total OP Count:   UPI: {Totals[1][3] + Totals[1][4]}  Cash: {Totals[0][3] + Totals[0][4]}, Half OP: {Totals[0][3] + Totals[1][3]}"
                 updateText2 = f"Total Amounts: Cash: {Totals[0][2]}   UPI: {Totals[1][2]}"
@@ -224,7 +225,7 @@ class ClientMainViewFrame(ttk.Frame):
         
         self.titleLabel = ttk.Label(master=self.titleFrame, text="Patient Registration", 
                                    font=("Calibri", 25, "bold"), style = "TLabel.success" )
-        self.titleLabel.grid(row=0, column=0, sticky="w", padx=(30,30))
+        self.titleLabel.grid(row=0, column=0, sticky="w", padx=(30,50))
 
 
         self.timeLabel = ttk.Label(master=self.titleFrame, font=("Calibri", 17, "bold"), style = "TLabel.success" )
@@ -242,14 +243,14 @@ class ClientMainViewFrame(ttk.Frame):
         self.clientUIDLabel = ttk.Label(master=self.clientGrid, text="Patient UID", 
                                         font=("Calibri", 15, "bold"), style = "TLabel.success", 
                                         justify="left")
-        self.clientUIDLabel.grid(row=0, column=0, sticky="w",padx = (30,30)) 
+        self.clientUIDLabel.grid(row=0, column=0, sticky="w",padx = (30,50)) 
         self.clientUIDEntry = ttk.Entry(master=self.clientGrid, 
                                         style = "TEntry.success", 
                                         width=25,
                                         state=DISABLED
                                         )
         
-        self.clientUIDEntry.grid(row=1, column=0, sticky='w', padx = (30,30))        
+        self.clientUIDEntry.grid(row=1, column=0, sticky='w', padx = (30,50))        
         
         def getUID(*args):
 
@@ -271,12 +272,12 @@ class ClientMainViewFrame(ttk.Frame):
                                          
                                         font=("Calibri", 15, "bold"), style = "TLabel.success", 
                                         justify="left")
-        self.clientNameLabel.grid(row=0, column=1, sticky="w",padx = (10,30)) 
+        self.clientNameLabel.grid(row=0, column=1, sticky="w",padx = (10,50)) 
         self.clientNameEntry = ttk.Entry(master=self.clientGrid, 
                                         style = "TEntry.success", 
                                         width=25
                                         )
-        self.clientNameEntry.grid(row=1, column=1, sticky='w', padx = (10,30))
+        self.clientNameEntry.grid(row=1, column=1, sticky='w', padx = (10,50))
         self.clientNameEntry.bind("<KeyRelease>", getUID)
         
         self.clientPhoneLabel = ttk.Label(master=self.clientGrid, 
@@ -293,12 +294,12 @@ class ClientMainViewFrame(ttk.Frame):
         self.clientGenderLabel  = ttk.Label(master=self.clientGrid,
                                            text = "Gender",font=("Calibri", 15, "bold"), 
                                       style = "TLabel.success", justify="left" )
-        self.clientGenderLabel.grid(row=0, column=3, sticky="w",padx = (30,30))
+        self.clientGenderLabel.grid(row=0, column=3, sticky="w",padx = (30,50))
         self.clientGenderCbox = ttk.Combobox(master=self.clientGrid, style="TCombobox.success",
                                             values=("Male", "Female", "Other"), state='readonly', 
                                             justify=CENTER, font=("calibri", 12, "bold"), 
                                              cursor='hand2')
-        self.clientGenderCbox.grid(row=1, column=3,sticky="w", padx = (30,30))
+        self.clientGenderCbox.grid(row=1, column=3,sticky="w", padx = (30,50))
 
 
 
@@ -346,7 +347,7 @@ class ClientMainViewFrame(ttk.Frame):
         self.clientAmountEntry = ttk.Entry(master=self.clientdetGrid, 
                                          style = "TEntry.success", 
                                           width=15)
-        self.clientAmountEntry.grid(row=1, column=3, sticky='w',padx = (0,30)) 
+        self.clientAmountEntry.grid(row=1, column=3, sticky='w',padx = (0,50)) 
 
         self.clientProcNameLabel  = ttk.Label(master=self.clientdetGrid,
                                            text = "Procedure",font=("Calibri", 15, "bold"), 
@@ -355,7 +356,7 @@ class ClientMainViewFrame(ttk.Frame):
         self.clientProcNameEntry = ttk.Entry(master=self.clientdetGrid, 
                                          style = "TEntry.success", 
                                           width=15)
-        self.clientProcNameEntry.grid(row=1, column=4, sticky='w',padx = (0,30)) 
+        self.clientProcNameEntry.grid(row=1, column=4, sticky='w',padx = (0,50)) 
         
         self.update()
         self.windowWidth = self.winfo_width()
@@ -371,7 +372,7 @@ class ClientMainViewFrame(ttk.Frame):
                                       style = "TButton.success", 
                                       #height=20,  
                                       command=addToTable)
-        self.confirmDetailsButton.grid(row=0, column=0, sticky="w",padx = (0,30))
+        self.confirmDetailsButton.grid(row=0, column=0, sticky="w",padx = (0,50))
 
         self.clearEntriesButton = ttk.Button(master=self.confirmButtonGrid, text="Clear Entries",
                                        #font=("Calibri", 15), 
@@ -416,12 +417,12 @@ class ClientMainViewFrame(ttk.Frame):
                                             values=("UID", "Patient Name", "Phone", "Date" ), state='readonly', 
                                             justify=CENTER, font=("calibri", 12, "bold"), 
                                              cursor='hand2')
-        self.searchByCbox.grid(row=0, column=2,sticky="w", pady=20, padx = (0,30))
+        self.searchByCbox.grid(row=0, column=2,sticky="w", pady=20, padx = (0,50))
 
         self.fetchDetailsButton = ttk.Button(master=self.fetchDetGrid, text="Fetch Details",
                                        style = "TButton.success",
                                       command=fetchDetails)
-        self.fetchDetailsButton.grid(row=0, column=3,sticky="w" ,pady=(0,0),padx = (0,30))
+        self.fetchDetailsButton.grid(row=0, column=3,sticky="w" ,pady=(0,0),padx = (0,50))
 
         
 

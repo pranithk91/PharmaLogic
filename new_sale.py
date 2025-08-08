@@ -2,7 +2,7 @@ from customtkinter import *
 import tkinter as tk
 from tkinter import ttk, messagebox
 from PIL import Image
-from database import selectTable, insertIntoTable
+from database_sync import selectTable, insertIntoTable
 #from CTkScrollableDropdown import *
 import pandas as pd
 #from CTkTable import CTkTable
@@ -382,7 +382,7 @@ class MainViewFrame(ttk.Frame):
             payMode = self.payModeCombobox.get()
             clientUId = self.clientUIDEntry.get()
             invDate = strftime("%Y-%m-%d %H:%M")
-            condition = f"Date_format(InvoiceDate, '%Y-%m-%d')  = '{today}'"
+            condition = f"strftime('%Y-%m-%d', InvoiceDate)  = '{today}'"
             Invcount = selectTable('MedicineInvoices', column_names='count(*)', condition=condition )
             Invcount = f"{Invcount[0][0]+1:02}"
             if self.discountEntry.get():
@@ -421,7 +421,7 @@ class MainViewFrame(ttk.Frame):
         def confirmDetails():
             
             currInvoiceNo = addToInvoices() 
-            #clientUId = self.clientUIDEntry.get()
+            
             
             if self.warningLabel.cget("text") == "Warning: Invalid Name" or self.warningLabel.cget("text") == "Warning: Phone number needs 10 digits":
                 pass

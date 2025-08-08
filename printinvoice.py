@@ -6,7 +6,7 @@ import pandas as pd
 
 import time
 import datetime
-from database import selectTable
+from database_sync import selectTable
 
 
 start_time = time.time()
@@ -28,7 +28,7 @@ def my_temp(c):
     # define a smaller font for A5
     c.setFont("Helvetica", 10)
     
-    # Other adjustments...
+    # Other adjustments
     c.setStrokeColorRGB(0, 0, 0)
     c.setFillColorRGB(0,0,0)
     c.rotate(90)
@@ -184,7 +184,7 @@ def printBill(bill_No):
     
     
     #date_object = datetime.datetime.strptime(my_prod[0][1], '%d/%m/%Y, %H:%M:%S')
-    billDate = str(my_prod[0][1].strftime('%d-%b-%Y'))
+    billDate = my_prod[0][1][:10]
     c.setFont("Times-Bold", 10)
     c.setFillColorRGB(0,0,0)
     c.drawString(6.8 * inch, 5.25 * inch, billDate)
@@ -210,10 +210,11 @@ def printBill(bill_No):
     c.showPage()
     c.save()
 
+
 """
-billNo = 'PM2509406'
+billNo = 'PM2521901'
 #ptName = 'Arshiya'
 #billData = getBillDetails(billNo)
-printBill(billNo)"""
-
+printBill(billNo)
+"""
 
